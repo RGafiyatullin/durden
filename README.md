@@ -58,6 +58,7 @@ The following module:
 </pre>
 
 produces WSDL below:
+(alternatively can be viewed at https://gist.github.com/3364435)
 <pre>
 <?xml version="1.0"?>
 <wsdl:definitions xmlns:ms="http://microsoft.com/wsdl/types/" xmlns:mstm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://rgafiyatullin.github.com/test-service" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s0="http://rgafiyatullin.github.com/test-service/s0" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://rgafiyatullin.github.com/test-service">
