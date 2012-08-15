@@ -1,4 +1,3 @@
-
 # Durden - a tool to make SOAP with Erlang and Cowboy web-server.
 
 ## Docs
@@ -18,13 +17,19 @@ The things that are to be done in the nearest future are the following SOAP-tran
 ## How it wokrs
 
 Durden analyses the source of the module supposed to become a Web-service via parse-transform.
+
 The specs of the functions enlisted in 'soap_actions' attribute are analysed.
+
 All the mentioned types are gathered recursively.
+
 The type info is then used as the return value of a generated function Module:'#durden.get_wsd#'/0.
+
 Besides the latter, 'cowboy_http_handler' behaviour is implemented: init/3 callback just asks Cowboy to upgrade the protocol into 'durden_cowboy_http_soap'.
 
 
 ## Example
+
+(https://github.com/RGafiyatullin/durden_examples)
 
 The following module:
 <pre>
@@ -59,7 +64,9 @@ The following module:
 
 produces WSDL below:
 (alternatively can be viewed at https://gist.github.com/3364435)
+
 <pre>
+
 <?xml version="1.0"?>
 <wsdl:definitions xmlns:ms="http://microsoft.com/wsdl/types/" xmlns:mstm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://rgafiyatullin.github.com/test-service" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s0="http://rgafiyatullin.github.com/test-service/s0" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://rgafiyatullin.github.com/test-service">
   <wsdl:types>
@@ -144,6 +151,7 @@ produces WSDL below:
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
+
 </pre>
 
 
