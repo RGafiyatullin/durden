@@ -6,19 +6,21 @@
 -ifndef(durden_wsd_hrl).
 -define(durden_wsd_hrl, included).
 
+-include("app.hrl").
 -include("xml.hrl").
 -include("erl_types.hrl").
 
--record(schema, {
-	target_ns :: xml_ns(),
-	namespaces :: [ { xml_ns(), xml_ncname() } ],
-	types :: [ { xml_ncname(), erlang_type_def() } ]
-	}).
+% -record(schema, {
+% 	target_ns :: xml_ns(),
+% 	namespaces :: [ { xml_ns(), xml_ncname() } ],
+% 	types :: [ { xml_ncname(), erlang_type_def() } ]
+% 	}).
 
+-type schema() :: ?dict_t. % [ {xml_ncname(), erlang_type_def()} ]
 -record(wsd, {
 	service_name :: string(),
 	target_ns :: xml_ns(),
-	schemas :: [ #schema{} ]
+	schemas :: [ schema() ]
 	}).
 
 -endif. % durden_wsd_hrl

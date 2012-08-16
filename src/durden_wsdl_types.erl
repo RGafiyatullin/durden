@@ -131,7 +131,7 @@ node_type_or_element( predefined, "guid" ) -> [];
 	% ) ];
 
 node_type_or_element( predefined, TName ) 
-	when in(TName, ["string", "integer", "date", "time", "datetime", "int", "guid"])
+	when in(TName, ["string", "integer", "date", "time", "datetime", "int", "guid", "boolean"])
 ->
 	[];
 
@@ -149,7 +149,7 @@ node_type_or_element(
 								{"minOccurs", 0},
 								{"maxOccurs", "unbounded"},
 								% {"nillable", "true"},
-								{"name", ItemNCN},
+								{"name", "item"},
 								{"type", qname(ItemNCN, ItemNS)}
 							], [])
 					])

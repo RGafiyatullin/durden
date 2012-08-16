@@ -282,6 +282,7 @@ spec_to_erlang_type(_TargetNS, _) -> { not_implemented, [] }.
 
 -spec qname(TargetNS :: xml_ns(), atom() | {record, atom()} ) -> xml_qname().
 
+qname(_TargetNS,  boolean ) -> { ?XML_NS_XSD, "boolean" };
 qname(_TargetNS,  string ) -> { ?XML_NS_XSD, "string" };
 qname(_TargetNS,  integer ) -> { ?XML_NS_XSD, ?XS_TYPE_INT };
 % qname(_TargetNS,  uuid ) -> { ?XML_NS_MS, "guid" };
@@ -293,12 +294,12 @@ qname(_TargetNS,  time ) -> { ?XML_NS_XSD, "time" };
 qname(_TargetNS,  datetime ) -> { ?XML_NS_XSD, "datetime" };
 
 qname(TargetNS,  {function, FuncName} ) ->
-	% { durden_wsd_aux:resolve_ns( TargetNS, tns_funcs ), atom_to_list(FuncName) };
-	{ durden_wsd_aux:resolve_ns( TargetNS, tns ), atom_to_list(FuncName) };
+	{ durden_wsd_aux:resolve_ns( TargetNS, tns_funcs ), atom_to_list(FuncName) };
+	% { durden_wsd_aux:resolve_ns( TargetNS, tns ), atom_to_list(FuncName) };
 
 qname(TargetNS,  {record, RecordNameAtom} ) ->
-	% { durden_wsd_aux:resolve_ns( TargetNS, tns_records ), atom_to_list(RecordNameAtom) };
-	{ durden_wsd_aux:resolve_ns( TargetNS, tns ), atom_to_list(RecordNameAtom) };
+	{ durden_wsd_aux:resolve_ns( TargetNS, tns_records ), atom_to_list(RecordNameAtom) };
+	% { durden_wsd_aux:resolve_ns( TargetNS, tns ), atom_to_list(RecordNameAtom) };
 
 qname( TargetNS,  TypeAtom ) ->
 	{ durden_wsd_aux:resolve_ns( TargetNS, tns ), atom_to_list(TypeAtom) }.
