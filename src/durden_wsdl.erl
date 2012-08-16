@@ -19,10 +19,11 @@
 	}).
 
 
--spec module_wsdl( string(), atom() ) -> iolist().
+-spec module_wsdl( string(), atom() ) -> { ok, XmlWSDL :: iolist(), WSD :: #wsd{} }.
 module_wsdl(HandlerURL, Handler) ->
 	WSD = Handler:'#durden.get_wsd#'(),
-	wsdl_from_wsd(HandlerURL, WSD).
+	XmlWSDL = wsdl_from_wsd(HandlerURL, WSD),
+	{ok, XmlWSDL, WSD}.
 
 -spec wsdl_from_wsd( string(), #wsd{} ) -> iolist().
 wsdl_from_wsd(
@@ -67,7 +68,7 @@ wsdl_from_wsd(
 
 	WSDL = process_types(AllTypes, SchemaPrefixes, TargetNS),
 	% io:format("WSDL: ~p~n", [WSDL]),
-	render(WSDL, SchemaPrefixes, TargetNS, ServiceName, HandlerURL).
+	_XmlWSDL = render(WSDL, SchemaPrefixes, TargetNS, ServiceName, HandlerURL).
 
 -spec process_types( 
 	?dict_t, % [{ {xml_ncname(), xml_ns()}, erlang_type_def() }]

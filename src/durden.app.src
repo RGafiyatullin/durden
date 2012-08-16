@@ -10,8 +10,9 @@
   {applications, [
                   kernel,
                   stdlib,
-                  cowboy
+                  cowboy,
+                  erlsom
                  ]},
-  % {mod, {durden_app, []} },
+  {mod, {durden_app, []} },
   {env, []}
  ]}.
