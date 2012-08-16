@@ -43,7 +43,7 @@ process_request( Handler, Req ) ->
 	),
 	case Result of
 		{unhandled, Req2} -> error_400_bad_soap_transport(Req2);
-		{handle, Req2} -> {ok, Req2}
+		{handled, Req2} -> {ok, Req2}
 	end.
 
 error_400_bad_wsdl_arg( Req ) ->
