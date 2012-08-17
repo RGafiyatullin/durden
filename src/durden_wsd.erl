@@ -5,6 +5,7 @@
 
 -module(durden_wsd).
 -export([new_context/2, gather_types/3, finalize/1]).
+-export([find_def/3]).
 
 -include("app.hrl").
 -include("xml.hrl").
@@ -31,6 +32,25 @@ finalize( Ctx = #s{
 		target_ns = TargetNS,
 		schemas = Schemas
 	}. 
+
+-spec find_def( 
+	NS :: xml_ns(), 
+	NCN :: xml_ncname(), 
+	WSD :: #wsd{} 
+) -> erlang_type_def() | {predefined, xml_ns(), xml_ncname()}.
+
+find_def( NS, NCN, _WSD = #wsd{ schemas = Schemas } ) ->
+	case ?dict_m:find(NS, Schemas) of
+		{ok, Schema} ->
+			case ?dict_m:find(NCN, Schema) of
+				{ok, predefined} -> {predefined, NS, NCN};
+				{ok, Def} -> Def;
+				error -> {predefined, NS, NCN}
+			end;
+		error ->
+			{predefined, NS, NCN}
+	end.
+
 
 -spec gather_types( 
 	TypeInfo :: #erl_type_info{},

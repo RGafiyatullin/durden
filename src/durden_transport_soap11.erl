@@ -5,6 +5,7 @@
 -include("wsd.hrl").
 
 -define(req_parser, durden_transport_soap11_request_parser).
+-define(resp_composer, durden_transport_soap11_response_composer).
 
 -spec try_handle(Handler :: atom(), Req :: term() ) -> 
 	{accept, Req :: term()} |
@@ -61,7 +62,9 @@ handle_func_call(
 	case catch {ok, erlang:apply(Handler, list_to_existing_atom(FuncName), ReqArgs)} of
 		{ok, RetValue} ->
 			io:format("RetValue: ~p~n", [ RetValue ]),
-			{ reject, Req1 };
+			{ok, XmlResponseEnvelope} = ?resp_composer:get_response_envelope( RetValue, FuncName, WSD ),
+			{ok, Req2} = cowboy_http_req:reply( 200, [], XmlResponseEnvelope, Req1 ),
+			{ accept, Req2 };
 		Error ->
 			io:format("Error invoking the target module: ~p~n", [ Error ]),
 			{ reject, Req1 }
@@ -70,8 +73,9 @@ handle_func_call(
 	
 
 error_bad_soap_action(SA, TNS, Req0) ->
-	{accept, _ReqReplied} = cowboy_http_req:reply(
+	{ok, ReqReplied} = cowboy_http_req:reply(
 		400, [], 
 		["Could not match soap action '", SA, "' with the target namespace '", TNS, "'"],
 		Req0
-	).
+	),
+	{accept, ReqReplied}.

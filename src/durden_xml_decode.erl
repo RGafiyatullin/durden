@@ -13,7 +13,7 @@ decode(Def, Serialized, WSD) ->
 
 
 decode( '_', #et_ref{ type = {NS, NCN} }, Serialized, WSD ) ->
-	case find_def(NS, NCN, WSD) of
+	case durden_wsd:find_def(NS, NCN, WSD) of
 		RecordDef = #et_record{} ->
 			decode( list_to_existing_atom(NCN), RecordDef, Serialized, WSD );
 		Def ->
@@ -89,20 +89,6 @@ decode( '_', #et_list{ type = TRef }, XmlList, WSD) when is_list(XmlList) ->
 
 decode( '_', Def, Serialized, _WSD ) ->
 	io:format( "Def: ~p~nSer: ~p~n~n", [Def, Serialized] ).
-
-%%% Internal
-
-find_def( NS, NCN, _WSD = #wsd{ schemas = Schemas } ) ->
-	case ?dict_m:find(NS, Schemas) of
-		{ok, Schema} ->
-			case ?dict_m:find(NCN, Schema) of
-				{ok, predefined} -> {predefined, NS, NCN};
-				{ok, Def} -> Def;
-				error -> {predefined, NS, NCN}
-			end;
-		error ->
-			{predefined, NS, NCN}
-	end.
 
 
 
