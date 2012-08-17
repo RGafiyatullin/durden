@@ -52,22 +52,20 @@ handle_soap_action( SA, Handler, Req0 ) ->
 
 handle_func_call( 
 	FuncName, 
-	WSD = #wsd{
-		target_ns = TargetNS,
-		schemas = Schemas
-	}, 
+	WSD = #wsd{}, 
 	Handler, Req0
 ) ->
-	FuncsNS = durden_wsd_aux:resolve_ns( TargetNS, tns_funcs ),
-	{ok, FuncsSchema} = ?dict_m:find(FuncsNS, Schemas),
-	{ok, FuncDef} = ?dict_m:find(FuncName, FuncsSchema),
-	io:format("function ~p :: ~p~n", [FuncName, FuncDef]),
 	{ ok, ReqBody, Req1 } = cowboy_http_req:body(Req0),
 	{ ok, ReqXml, [] } = erlsom:simple_form( iolist_to_binary(ReqBody) ),
-	io:format("Req SOAP-Envelope: ~p~n", [ ReqXml ]),
-	{ok, ReqArgs} = ?req_parser:get_request_args( ReqXml, {FuncName, FuncsNS}, WSD ),
-	io:format("~p:~p ~p~n", [Handler, list_to_existing_atom(FuncName), ReqArgs]),
-	{reject, Req1}.
+	{ ok, ReqArgs } = ?req_parser:get_request_args( ReqXml, FuncName, WSD ),
+	case catch {ok, erlang:apply(Handler, list_to_existing_atom(FuncName), ReqArgs)} of
+		{ok, RetValue} ->
+			io:format("RetValue: ~p~n", [ RetValue ]),
+			{ reject, Req1 };
+		Error ->
+			io:format("Error invoking the target module: ~p~n", [ Error ]),
+			{ reject, Req1 }
+	end.
 
 	
 
