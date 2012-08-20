@@ -119,7 +119,9 @@ to_xmerl( _Node = #xml_node{
 				} )
 			|| Child <- Children
 		]
-	}.
+	};
+to_xmerl( Text, _Ctx = #s{} ) when is_list(Text) ->
+	#xmlText{ value = Text }.
 
 render_imports( Imports ) ->
 	?dict_m:fold(

@@ -39,6 +39,7 @@ wsdl_from_wsd(
 		{?XML_NS_SOAP, "soap"},
 		{?XML_NS_SOAP12, "soap12"},
 		{?XML_NS_SOAPENC, "soapenc"},
+		{?XML_NS_SOAPENV, "soapenv"},
 		{?XML_NS_HTTP, "http"},
 		{?XML_NS_MIME, "mime"},
 		{?XML_NS_MS_TM, "mstm"},

@@ -63,7 +63,9 @@ handle_func_call(
 		{ok, RetValue} ->
 			io:format("RetValue: ~p~n", [ RetValue ]),
 			{ok, XmlResponseEnvelope} = ?resp_composer:get_response_envelope( RetValue, FuncName, WSD ),
-			{ok, Req2} = cowboy_http_req:reply( 200, [], XmlResponseEnvelope, Req1 ),
+			{ok, Req2} = cowboy_http_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, Req1),
+			io:format("Response Envelope: ~p~n", [ iolist_to_binary(XmlResponseEnvelope) ]),
+			{ok, Req3} = cowboy_http_req:reply( 200, [], XmlResponseEnvelope, Req2 ),
 			{ accept, Req2 };
 		Error ->
 			io:format("Error invoking the target module: ~p~n", [ Error ]),

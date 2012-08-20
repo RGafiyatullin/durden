@@ -6,7 +6,18 @@
 -ifndef(durden_wsdl_hrl).
 -define(durden_wsdl_hrl, included).
 
--define(WSDL_FIELD_RESULT(ReqName), list_to_atom(ReqName ++ "Result") ).
+-define(WSDL_FIELD_RESULT(ReqName), 
+	if 
+		is_list(ReqName) -> list_to_atom(ReqName ++ "Result");
+		is_atom(ReqName) -> list_to_atom(atom_to_list(ReqName) ++ "Result")
+	end
+).
+-define(WSDL_FIELD_RESULT_AS_STR(ReqName), 
+	if 
+		is_list(ReqName) -> ReqName ++ "Result";
+		is_atom(ReqName) -> atom_to_list(ReqName) ++ "Result"
+	end
+).
 -define(WSDL_SUFFIX_RESPONSE, "Response").
 
 -define(WSDL_SUFFIX_PT_SOAP, "Soap").

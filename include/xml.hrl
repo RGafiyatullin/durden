@@ -15,6 +15,7 @@
 -define(XML_NS_WSDL, "http://schemas.xmlsoap.org/wsdl/").
 -define(XML_NS_SOAP, "http://schemas.xmlsoap.org/wsdl/soap/").
 -define(XML_NS_SOAP12, "http://schemas.xmlsoap.org/wsdl/soap12/").
+-define(XML_NS_SOAPENV, "http://schemas.xmlsoap.org/soap/envelope/").
 -define(XML_NS_SOAPENC, "http://schemas.xmlsoap.org/soap/encoding/").
 -define(XML_NS_HTTP, "http://schemas.xmlsoap.org/wsdl/http/").
 -define(XML_NS_MIME, "http://schemas.xmlsoap.org/wsdl/mime/").
