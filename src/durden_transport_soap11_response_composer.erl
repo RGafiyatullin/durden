@@ -22,13 +22,6 @@ get_response_envelope(
 		schemas = Schemas
 	}
 ) ->
-	io:format("FuncName: ~p~n", [FuncName]),
-	Envelope = ?xml:node({"Envelope", ?XML_NS_SOAPENV}, [], [
-		?xml:node({"Body", ?XML_NS_SOAPENV}, [], [
-			create_response_message(RetValue, FuncName, WSD)
-		])
-	]),
-
 	PredefinedSchemaPrefixes = ?dict_m:from_list([
 		{?XML_NS_WSDL, "wsdl"},
 		{?XML_NS_SOAP, "soap"},
@@ -39,10 +32,9 @@ get_response_envelope(
 		{?XML_NS_MIME, "mime"},
 		{?XML_NS_MS_TM, "mstm"},
 		{?XML_NS_XSD, "xs"},
-		{?XML_NS_MS, "ms"},
-		{TargetNS, "tns"}
+		{?XML_NS_MS, "ms"}
 	]),
-	{ SchemaPrefixes, _ } = ?dict_m:fold(
+	{ UserDefinedPrefixes, _ } = ?dict_m:fold(
 		fun( NS, _SchemaTypes, { PSP, Idx } ) ->
 			case ?dict_m:find( NS, PSP ) of
 				{ok, _} -> { PSP, Idx };
@@ -51,16 +43,32 @@ get_response_envelope(
 					{ ?dict_m:store( NS, P, PSP ), Idx + 1 }
 			end
 		end,
-		{ PredefinedSchemaPrefixes, 0 },
+		{ ?dict_m:from_list([ {TargetNS, "tns"} ]), 0 },
 		Schemas
 		),
+
+	RespMessage = ?xml:set_omit_prefixes(
+		create_response_message(RetValue, FuncName, WSD),
+		true
+	),
+	RespMessage_NSsImported = ?dict_m:fold(
+		fun(NS, Prefix, RMsg) ->
+			?xml:imp_ns(NS, Prefix, RMsg)
+		end,
+		RespMessage,
+		UserDefinedPrefixes
+	),
+	
+	Body = ?xml:node({"Body", ?XML_NS_SOAPENV}, [], [ RespMessage_NSsImported ]),
+	Envelope = ?xml:node({"Envelope", ?XML_NS_SOAPENV}, [], [ Body ]),
 	Envelope_NSsImported = ?dict_m:fold(
 		fun( NS, Prefix, Env ) ->
 			?xml:imp_ns(NS, Prefix, Env)
 		end,
 		Envelope,
-		SchemaPrefixes
+		PredefinedSchemaPrefixes
 	),
+	
 	XmlEnvelope = ?xml:render( Envelope_NSsImported ),
 	{ok, XmlEnvelope}.
 
@@ -82,11 +90,9 @@ create_response_message(
 						RespMessageSchema
 					),
 	RespDef = FuncDef #et_func.ret,
-	io:format("Response Def: ~p~n", [RespDef]),
+	% io:format("Response Def: ~p~n", [RespDef]),
 	RespMessageNodeContent = ?xml_enc:encode(RetValue, RespDef, WSD),
+	io:format("Response Encoded: ~p~n", [ RespMessageNodeContent ]),
 	?xml:node({RespMessageName, RespMessageNS}, [], [
-		?xml:node({?WSDL_FIELD_RESULT_AS_STR(FuncName), RespMessageNS},
-			[],
-			[ RespMessageNodeContent ]
-		)
+		?xml:node({?WSDL_FIELD_RESULT_AS_STR(FuncName), RespMessageNS}, [], RespMessageNodeContent )
 	]).

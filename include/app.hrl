@@ -9,8 +9,8 @@
 % -define(dict_t, orddict:orddict() ).
 % -define(dict_m, orddict).
 
--define(dict_t, dict() ).
--define(dict_m, dict).
+-define(dict_t, orddict:orddict() ).
+-define(dict_m, orddict).
 
 
 -endif. % app_hrl

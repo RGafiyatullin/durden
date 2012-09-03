@@ -43,12 +43,23 @@ find_def( NS, NCN, _WSD = #wsd{ schemas = Schemas } ) ->
 	case ?dict_m:find(NS, Schemas) of
 		{ok, Schema} ->
 			case ?dict_m:find(NCN, Schema) of
-				{ok, predefined} -> {predefined, NS, NCN};
+				{ok, predefined} -> 
+					#et_predefined{
+						ns = NS,
+						name = NCN
+					};
 				{ok, Def} -> Def;
-				error -> {predefined, NS, NCN}
+				error -> 
+					#et_predefined{
+						ns = NS,
+						name = NCN
+					}
 			end;
 		error ->
-			{predefined, NS, NCN}
+			#et_predefined{
+				ns = NS,
+				name = NCN
+			}
 	end.
 
 

@@ -132,16 +132,16 @@ get_soap_exports( Forms ) ->
 soap_exports_check_name_collisions( Exports ) ->
 	FuncTimes = lists:foldl(
 		fun( {F, _}, M ) ->
-			NCnt = case dict:find(F, M) of
+			NCnt = case ?dict_m:find(F, M) of
 				{ok, Cnt} -> Cnt;
 				error -> 0
 			end,
-			dict:store( F, NCnt + 1, M )
+			?dict_m:store( F, NCnt + 1, M )
 		end,
-		dict:new(),
+		?dict_m:new(),
 		Exports ),
-	FuncTimesFiltered = dict:to_list(
-		dict:filter(
+	FuncTimesFiltered = ?dict_m:to_list(
+		?dict_m:filter(
 			fun
 				( _, 1 ) ->
 					false;

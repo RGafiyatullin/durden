@@ -8,6 +8,48 @@
 -include("erl_types.hrl").
 
 -spec encode(any(), erlang_type_def(), #wsd{}) -> [ ?xml:xml_node() ].
+
+encode(true, #et_predefined{ ns = ?XML_NS_XSD, name = "boolean"}, _WSD = #wsd{}) -> ["true"];
+encode(false, #et_predefined{ ns = ?XML_NS_XSD, name = "boolean"}, _WSD = #wsd{}) -> ["false"];
+
+encode(IntValue, #et_predefined{ ns = ?XML_NS_XSD, name = "int"}, _WSD = #wsd{}) 
+	when is_integer(IntValue) 
+	-> [integer_to_list(IntValue)];
+encode(IntValue, #et_predefined{ ns = ?XML_NS_XSD, name = "int"}, _WSD = #wsd{}) -> throw({xml_encode_error, string, IntValue});
+
+encode(StrValue, #et_predefined{ ns = ?XML_NS_XSD, name = "string"}, _WSD = #wsd{}) when is_list(StrValue) -> [StrValue];
+encode(StrValue, #et_predefined{ ns = ?XML_NS_XSD, name = "string"}, _WSD = #wsd{}) -> throw({xml_encode_error, string, StrValue});
+
+encode(ListOfValues, #et_list{ type = Type }, WSD = #wsd{} ) when is_list(ListOfValues) ->
+	lists:foldl(
+		fun(EveryValue, Acc) ->
+			Acc ++ encode(EveryValue, Type, WSD)
+		end,
+		[],
+		ListOfValues
+	);
+
+encode(
+		GuidValue, 
+		#et_predefined{ ns = ?XML_NS_XSD, name = "guid"}, 
+		_WSD = #wsd{}
+	) 
+	when is_list(GuidValue) 
+	andalso length(GuidValue) == 36 
+	->
+		[GuidValue];
+
+encode(
+		GuidValue, 
+		#et_predefined{ ns = ?XML_NS_XSD, name = "guid"}, 
+		_WSD = #wsd{}
+	)
+	->
+		throw(
+			{ xml_encode_error, guid, {GuidValue, is_list(GuidValue), catch length(GuidValue) } }
+		);
+
+
 encode(Value, #et_ref{ type = {NS, NCN} }, WSD = #wsd{}) ->
 	EncodeAs = durden_wsd:find_def(NS, NCN, WSD),
 	encode(Value, EncodeAs, WSD);
@@ -16,7 +58,7 @@ encode(Value, #et_integer{}, _WSD = #wsd{}) ->
 	case catch {ok, integer_to_list(Value)} of
 		{ok, IntAsString} ->
 			[ IntAsString ];
-		Error ->
+		_Error ->
 			throw({xml_encode_error, integer, Value})
 	end;
 
@@ -25,7 +67,7 @@ encode(Value, #et_float{}, _WSD = #wsd{}) ->
 	case catch {ok, float_to_list(Value)} of
 		{ok, FloatAsString} ->
 			[ FloatAsString ];
-		Error ->
+		_Error ->
 			throw({xml_encode_error, float, Value})
 	end;
 
@@ -75,6 +117,35 @@ encode(Value, #et_range{ lo = Lo, hi = Hi }, WSD = #wsd{}) ->
 			throw({xml_encode_error, {range, Lo, Hi}, Value})
 	end;
 
+encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{
+		target_ns = TargetNS
+	}
+) ->
+	[ RecordNameAtom | FieldValues ] = tuple_to_list(RecordTuple),
+	RecordNS = durden_wsd_aux:resolve_ns(TargetNS, tns_records),
+	RecordName = atom_to_list( RecordNameAtom ),
+	RecordFieldsWithDefs = lists:zip( FieldDefs, FieldValues ),
+	FieldsRenderedReverse = lists:flatten(
+		lists:foldl(
+			fun({FNameAndDef, FValue}, Acc) ->
+				{FName, FDef} = FNameAndDef,
+				FNode = ?xml:node({atom_to_list(FName), RecordNS},
+					[],
+					encode( FValue, FDef, WSD )
+				),
+				io:format("FNode: ~p~n", [FNode]),
+				[ FNode | Acc ]
+			end,
+			[],
+			RecordFieldsWithDefs
+		)
+	),
+	FieldsRendered = lists:reverse(FieldsRenderedReverse),
+	io:format("Fields: ~p~n", [FieldsRendered]),
+	[ ?xml:node({RecordName, RecordNS}, [], FieldsRendered) ];
+
 encode(Value, EncodeAs, _WSD) -> 
 	io:format("error encoding ~p as ~p~n", [Value, EncodeAs]),
 	throw({xml_encode_error, {not_implemented, EncodeAs}, Value}).
+
+

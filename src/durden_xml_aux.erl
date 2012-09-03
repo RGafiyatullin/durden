@@ -4,8 +4,9 @@
 %% 
 
 -module(durden_xml_aux).
+-compile({parse_transform, gin}).
 -export([node/1, node/2, node/3]).
--export([imp_ns/3, attrs/2, add/2]).
+-export([set_omit_prefixes/2, imp_ns/3, attrs/2, add/2]).
 -export([qname/2]).
 -export([render/1]).
 -export_type([xml_node/0, xml_attr/0]).
@@ -20,7 +21,8 @@
 	ncname = undefined :: xml_ncname(),
 	imports = ?dict_m:new() :: ?dict_t, % [ {xml_ns(), xml_ncname()} ],
 	attrs = [] :: [ {xml_ncname(), string()} ],
-	children = [] :: [ #xml_node{} ]
+	children = [] :: [ #xml_node{} ],
+	omit_prefixes = undefined :: boolean()
 	}).
 -type xml_node() :: #xml_node{}.
 -type xml_attr() :: { 
@@ -57,6 +59,12 @@ node({ NCN, NS }, Attrs, Children) ->
 		)
 	).
 
+-spec set_omit_prefixes( #xml_node{}, Mode :: boolean() ) -> #xml_node{}.
+set_omit_prefixes( Node = #xml_node{}, Mode ) ->
+	Node #xml_node{
+		omit_prefixes = Mode
+	}.
+
 -spec imp_ns(NS :: xml_ns(), Prefix :: xml_ncname(), #xml_node{} ) -> #xml_node{}.
 imp_ns( NS, Prefix, Node = #xml_node{ imports = Imports } ) ->
 	Node #xml_node{
@@ -76,7 +84,8 @@ add( NewChildren, Parent = #xml_node{ children = Children } ) ->
 
 -record(s, {
 		ns = undefined,
-		prefixes = ?dict_m:new()
+		prefixes = ?dict_m:new(),
+		omit_prefixes = false
 	}).
 
 -spec render( #xml_node{} ) -> iolist().
@@ -89,11 +98,13 @@ to_xmerl( _Node = #xml_node{
 		ncname = NodeNCN,
 		attrs = Attrs,
 		imports = Imports,
-		children = Children
+		children = Children,
+		omit_prefixes = NodeOmitPrefixes
 	}, 
 	Ctx = #s{ 
 		ns = CtxNS,
-		prefixes = CtxPrefixes
+		prefixes = CtxPrefixes,
+		omit_prefixes = CtxOmitPrefixes
 	}
 ) ->
 	NS = case NodeNS of
@@ -106,7 +117,21 @@ to_xmerl( _Node = #xml_node{
 		end, 
 		CtxPrefixes, Imports
 	),
-	TagName = tag_qname( NS, NodeNCN, Prefixes ),
+	OmitPrefixes = 
+		case NodeOmitPrefixes of
+			undefined ->
+				CtxOmitPrefixes;
+			_ when in(NodeOmitPrefixes, [true, false]) ->
+				NodeOmitPrefixes
+		end,
+	TagName = 
+		case OmitPrefixes of
+			true ->
+				tag_qname( NS, CtxNS, NodeNCN, Prefixes );
+			false ->
+				tag_qname( NS, NodeNCN, Prefixes )
+		end,
+
 	#xmlElement{
 		name = TagName,
 		attributes = render_imports( Imports ) ++ render_attrs( Attrs, Prefixes ),
@@ -115,7 +140,8 @@ to_xmerl( _Node = #xml_node{
 				Child, 
 				Ctx #s{
 					prefixes = Prefixes,
-					ns = NS
+					ns = NS,
+					omit_prefixes = OmitPrefixes
 				} )
 			|| Child <- Children
 		]
@@ -164,9 +190,13 @@ imp_qname(Prefix) ->
 		_ -> list_to_atom( "xmlns:" ++ Prefix )
 	end.
 
+tag_qname(NS, ParentNS, NCN, _) when NS == ParentNS ->
+	list_to_atom(NCN);
+
+tag_qname(NS, _ParentNS, NCN, Prefixes) ->
+	tag_qname(NS, NCN, Prefixes).
+
 tag_qname(NS, NCN, Prefixes) ->
-	% io:format("Prefixes: ~p~n", [Prefixes]),
-	% io:format("Lookup: {~p}~p~n", [NS, NCN]),
 	P = ?dict_m:fetch( NS, Prefixes ),
 	list_to_atom( 
 		case P of

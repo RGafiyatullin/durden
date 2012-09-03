@@ -22,35 +22,35 @@ decode( '_', #et_ref{ type = {NS, NCN} }, Serialized, WSD ) ->
 
 
 
-decode( '_', {predefined, ?XML_NS_XSD, "boolean"}, ["true"], _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "boolean"}, ["true"], _WSD ) ->
 	true;
-decode( '_', {predefined, ?XML_NS_XSD, "boolean"}, ["false"], _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "boolean"}, ["false"], _WSD ) ->
 	false;
-decode( '_', {predefined, ?XML_NS_XSD, "boolean"}, Serialized, _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "boolean"}, Serialized, _WSD ) ->
 	throw({xml_decode_error, {boolean, Serialized}});
 
 
 
-decode( '_', {predefined, ?XML_NS_XSD, "string"}, [ StringValue ], _WSD ) when is_list(StringValue) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "string"}, [ StringValue ], _WSD ) when is_list(StringValue) ->
 	StringValue;
-decode( '_', {predefined, ?XML_NS_XSD, "string"}, Serialized, _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "string"}, Serialized, _WSD ) ->
 	throw({xml_decode_error, {string, Serialized}});
 
 
 
-decode( '_', {predefined, ?XML_NS_XSD, ?XS_TYPE_INT}, [ IntAsString ], _WSD ) when is_list(IntAsString) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_INT}, [ IntAsString ], _WSD ) when is_list(IntAsString) ->
 	case catch list_to_integer(IntAsString) of
 		IntValue when is_integer(IntValue) -> IntValue;
 		_ -> throw({xml_decode_error, {integer, [ IntAsString ]}})
 	end;
-decode( '_', {predefined, ?XML_NS_XSD, ?XS_TYPE_INT}, Serialized, _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_INT}, Serialized, _WSD ) ->
 	throw({xml_decode_error, {integer, Serialized}});
 
 
 
-decode( '_', {predefined, ?XML_NS_XSD, "guid"}, [ UUID ], _WSD ) when is_list(UUID) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "guid"}, [ UUID ], _WSD ) when is_list(UUID) ->
 	UUID;
-decode( '_', {predefined, ?XML_NS_XSD, "guid"}, Serialized, _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "guid"}, Serialized, _WSD ) ->
 	throw({xml_decode_error, {uuid, Serialized}});
 
 
@@ -58,6 +58,7 @@ decode( '_', {predefined, ?XML_NS_XSD, "guid"}, Serialized, _WSD ) ->
 decode( RecordName, #et_record{ fields = Fields }, Serialized, WSD ) ->
 	{Recognized, []} = lists:foldl(
 		fun({FName, FDef}, {Mapped, NotMapped}) ->
+			io:format("FieldName: ~p~n", [FName]),
 			FNameStr = atom_to_list(FName),
 			[ FXml ] = [ FC || { FN, _, FC } <- NotMapped, FN == FNameStr ],
 			Rest = [ F || F = { FN, _, _ } <- NotMapped, FN /= FNameStr ],
