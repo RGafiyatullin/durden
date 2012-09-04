@@ -133,7 +133,6 @@ encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{
 					[],
 					encode( FValue, FDef, WSD )
 				),
-				io:format("FNode: ~p~n", [FNode]),
 				[ FNode | Acc ]
 			end,
 			[],
@@ -141,7 +140,6 @@ encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{
 		)
 	),
 	FieldsRendered = lists:reverse(FieldsRenderedReverse),
-	io:format("Fields: ~p~n", [FieldsRendered]),
 	[ ?xml:node({RecordName, RecordNS}, [], FieldsRendered) ];
 
 encode(Value, EncodeAs, _WSD) -> 

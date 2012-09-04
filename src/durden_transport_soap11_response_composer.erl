@@ -90,9 +90,7 @@ create_response_message(
 						RespMessageSchema
 					),
 	RespDef = FuncDef #et_func.ret,
-	% io:format("Response Def: ~p~n", [RespDef]),
 	RespMessageNodeContent = ?xml_enc:encode(RetValue, RespDef, WSD),
-	io:format("Response Encoded: ~p~n", [ RespMessageNodeContent ]),
 	?xml:node({RespMessageName, RespMessageNS}, [], [
 		?xml:node({?WSDL_FIELD_RESULT_AS_STR(FuncName), RespMessageNS}, [], RespMessageNodeContent )
 	]).
