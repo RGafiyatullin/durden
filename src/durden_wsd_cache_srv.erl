@@ -29,12 +29,10 @@ handle_call({get_cache_entry, Handler}, _From, State = #s{ ets = ETS }) ->
 	% TODO: URI shoult be determined not hardcoded.
 	{Wsdl, Wsd} = case ets:lookup(ETS, Handler) of
 		[] ->
-			io:format("Cache[~p] MISS~n", [Handler]),
 			{ok, WsdlCreated, WsdCreated} = durden_wsdl:module_wsdl("http://localhost:8080/pb/v0.asmx", Handler),
 			true = ets:insert_new(ETS, { Handler, {WsdlCreated, WsdCreated} }),
 			{WsdlCreated, WsdCreated};
 		[ { _, {WsdlFound, WsdFound} } ] ->
-			io:format("Cache[~p] HIT~n", [Handler]),
 			{WsdlFound, WsdFound}
 	end,
 

@@ -24,26 +24,40 @@ upgrade(
 		_ ->
 			error_400_bad_wsdl_arg( Req )
 	end.
-	
-	% {ok, ReqReplied} = cowboy_http_req:reply(501, [], <<"Not implemented">>, Req).
 
 process_request( Handler, Req ) ->
 	Transports = transport_modules(),
-	Result = lists:foldl(
-		fun
-			(_M,  {handled, Req0}) -> {handled, Req0};
-			(M, {unhandled, Req0}) ->
-				case M:try_handle(Handler, Req0) of
-					{reject, Req1} -> {unhandled, Req1};
-					{accept, Req1} -> {handled, Req1}
+	TransportProbeResult = lists:foldl(fun
+			(_, {will_handle, R, T}) ->
+				{will_handle, R, T};
+
+			(T, {wont_handle, R}) ->
+				case T:can_handle( Handler, R ) of
+					{ true, RWillHandle } -> { will_handle, RWillHandle, T };
+					{ false, RWontHandle } -> { wont_handle, RWontHandle }
 				end
 		end,
-		{unhandled, Req},
+		{wont_handle, Req},
 		Transports
 	),
-	case Result of
-		{unhandled, Req2} -> error_400_bad_soap_transport(Req2);
-		{handled, Req2} -> {ok, Req2}
+	case TransportProbeResult of
+		{will_handle, ReqWillHandle, ChosenTransport} ->
+			{ok, Func, Args, ReqArgsParsed} = ChosenTransport:parse_request( Handler, Req ),
+			case {ok, catch erlang:apply( Handler, Func, Args )} of
+				{ok, RetValue} ->
+					case catch ChosenTransport:render_response( Handler, RetValue, ReqArgsParsed ) of
+						{ok, ReqResponded} -> {ok, ReqResponded};
+						Error -> error_500_failed_to_render_positive_response( ReqArgsParsed, Error )
+					end;
+				Error ->
+					case catch ChosenTransport:render_error( Error, ReqArgsParsed ) of
+						{ok, ReqResponded} -> {ok, ReqResponded};
+						_ErrorWhileRenderingError -> error_500_failed_to_fulfill_the_request( ReqArgsParsed, Error )
+					end
+			end;
+		{wont_handle, ReqWontHandle} ->
+			io:format("Error while transport detection~n"),
+			error_400_bad_soap_transport( ReqWontHandle )
 	end.
 
 error_400_bad_wsdl_arg( Req ) ->
@@ -52,6 +66,11 @@ error_400_bad_wsdl_arg( Req ) ->
 error_400_bad_soap_transport( Req ) ->
 	{ok, _ReqReplied} = cowboy_http_req:reply(400, [], <<"Unknown SOAP-transport">>, Req).
 
+error_500_failed_to_render_positive_response( Req, Error ) ->
+	{ok, _ReqReplied} = cowboy_http_req:reply(500, [], [ "Failed to render the response though : ", io_lib:format("~p", [Error]) ], Req).
+
+error_500_failed_to_fulfill_the_request( Req, Error ) ->
+	{ok, _ReqReplied} = cowboy_http_req:reply(500, [], [ "Failed to fulfill the request due to the following error: ", io_lib:format("~p", [Error]) ], Req).
 
 transport_modules() -> [ durden_transport_soap11 ].
 
