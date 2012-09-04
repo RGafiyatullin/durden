@@ -12,11 +12,11 @@
 
 upgrade(
 		_ListenerPid, Handler,
-		_Opts, Req
+		[ BaseUrl ], Req
 	) ->
 	case cowboy_http_req:qs_val(<<"wsdl">>, Req, undefined) of
 		{ <<"0">>, _ } ->
-			{ok, XmlWSDL} = durden_wsd_cache:get_wsdl( Handler ),
+			{ok, XmlWSDL} = durden_wsd_cache:get_wsdl( Handler, BaseUrl ),
 			{ok, ReqContentType} = cowboy_http_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, Req),
 			{ok, _ReqReplied} = cowboy_http_req:reply(200, [], XmlWSDL, ReqContentType);
 		{ undefined, _ } ->

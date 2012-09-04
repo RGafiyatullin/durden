@@ -25,17 +25,25 @@ init({}) ->
 		ets = ?MODULE
 	}}.
 
-handle_call({get_cache_entry, Handler}, _From, State = #s{ ets = ETS }) ->
-	% TODO: URI shoult be determined not hardcoded.
-	{Wsdl, Wsd} = case ets:lookup(ETS, Handler) of
+handle_call({get_cache_entry, Handler, BaseUrl}, _From, State = #s{ ets = ETS }) ->
+	WSDKey = {wsd, Handler},
+	WSDLKey = {wsdl, Handler, BaseUrl},
+	{ok, Wsd} = case ets:lookup(ETS, WSDKey) of
 		[] ->
-			{ok, WsdlCreated, WsdCreated} = durden_wsdl:module_wsdl("http://localhost:8080/pb/v0.asmx", Handler),
-			true = ets:insert_new(ETS, { Handler, {WsdlCreated, WsdCreated} }),
-			{WsdlCreated, WsdCreated};
-		[ { _, {WsdlFound, WsdFound} } ] ->
-			{WsdlFound, WsdFound}
+			{ok, _WsdlCreated, WsdCreated} = durden_wsdl:module_wsdl("http://example.com/", Handler),
+			true = ets:insert_new(ETS, { WSDKey, WsdCreated }),
+			{ok, WsdCreated};
+		[ {_, WsdFound} ] ->
+			{ok, WsdFound}
 	end,
-
+	{ok, Wsdl} = case ets:lookup(ETS, WSDLKey) of
+		[] ->
+			{ok, WsdlCreated, _} = durden_wsdl:module_wsdl(BaseUrl, Handler),
+			true = ets:insert_new(ETS, { WSDLKey, WsdlCreated }),
+			{ok, WsdlCreated};
+		[ {_, WsdlFound} ] ->
+			{ok, WsdlFound}
+	end,
 	{reply, {ok, Wsdl, Wsd}, State};
 
 handle_call(Request, _From, State = #s{}) ->
