@@ -116,9 +116,14 @@ parse_form(
 	QName = qname(TargetNS, {record, RecordName}),
 	{ ETDef, NRefs } = record_spec_to_erlang_type( TargetNS, FieldSpecs ),
 	report_discovered_type( QName, ETDef, NRefs ),
+	NRefsFiltered = lists:filter(
+		fun({ RefQName, _Line }) ->
+			RefQName /= QName
+		end,
+		NRefs),
 	Ctx #s{
 		types = ?dict_m:store(QName, ETDef, Types),
-		refs = ?dict_m:store(QName, NRefs, Refs)
+		refs = ?dict_m:store(QName, NRefsFiltered, Refs)
 	};
 
 parse_form(
