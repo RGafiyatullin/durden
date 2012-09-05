@@ -94,3 +94,6 @@ create_response_message(
 	?xml:node({RespMessageName, RespMessageNS}, [], [
 		?xml:node({?WSDL_FIELD_RESULT_AS_STR(FuncName), RespMessageNS}, [], RespMessageNodeContent )
 	]).
+
+
+

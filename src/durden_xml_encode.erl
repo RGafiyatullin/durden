@@ -121,9 +121,9 @@ encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{
 		target_ns = TargetNS
 	}
 ) ->
-	[ RecordNameAtom | FieldValues ] = tuple_to_list(RecordTuple),
+	[ _RecordNameAtom | FieldValues ] = tuple_to_list(RecordTuple),
 	RecordNS = durden_wsd_aux:resolve_ns(TargetNS, tns_records),
-	RecordName = atom_to_list( RecordNameAtom ),
+	% RecordName = atom_to_list( RecordNameAtom ),
 	RecordFieldsWithDefs = lists:zip( FieldDefs, FieldValues ),
 	FieldsRenderedReverse = lists:flatten(
 		lists:foldl(
@@ -140,7 +140,8 @@ encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{
 		)
 	),
 	FieldsRendered = lists:reverse(FieldsRenderedReverse),
-	[ ?xml:node({RecordName, RecordNS}, [], FieldsRendered) ];
+	% [ ?xml:node({RecordName, RecordNS}, [], FieldsRendered) ];
+	FieldsRendered;
 
 encode(Value, EncodeAs, _WSD) -> 
 	io:format("error encoding ~p as ~p~n", [Value, EncodeAs]),

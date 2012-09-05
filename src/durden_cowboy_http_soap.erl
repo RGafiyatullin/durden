@@ -74,6 +74,6 @@ error_500_failed_to_render_positive_response( Req, Error ) ->
 error_500_failed_to_fulfill_the_request( Req, Error ) ->
 	{ok, _ReqReplied} = cowboy_http_req:reply(500, [], [ "Failed to fulfill the request due to the following error: ", io_lib:format("~p", [Error]) ], Req).
 
-transport_modules() -> [ durden_transport_soap11 ].
+transport_modules() -> [ durden_transport_soap12 ].
 
 

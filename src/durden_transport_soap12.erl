@@ -1,4 +1,4 @@
--module(durden_transport_soap11).
+-module(durden_transport_soap12).
 -behaviour(durden_transport).
 % -export([try_handle/2]).
 -export([
