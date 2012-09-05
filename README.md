@@ -9,10 +9,18 @@
 ## Current status
 
 Durden can generate a not too bad WSDL from specially cooked erlang modules.
-By this very moment that's all. :)
+It also can handle SOAP/1.2-bound requests.
 
-The things that are to be done in the nearest future are the following SOAP-transports: SOAP, SOAP/1.1, HTTP-GET, HTTP-POST.
+## Nearest future
 
+Soap transports:
+* HTTP-POST
+* SOAP/1.1
+* HTTP-GET
+
+Support of indirect reference loops in the types declarations (currently parse transformation hangs when analysing a types like "A references B references A again")
+
+Human readable documentation page (alike to that one generated when you visit .Net's ASMX page with no parameters)
 
 ## How it wokrs
 
@@ -25,7 +33,6 @@ All the mentioned types are gathered recursively.
 The type info is then used as the return value of a generated function Module:'#durden.get_wsd#'/0.
 
 Besides the latter, 'cowboy_http_handler' behaviour is implemented: init/3 callback just asks Cowboy to upgrade the protocol into 'durden_cowboy_http_soap'.
-
 
 ## Example
 
