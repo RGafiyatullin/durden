@@ -43,7 +43,7 @@ process_request( Handler, Req ) ->
 	case TransportProbeResult of
 		{will_handle, ReqWillHandle, ChosenTransport} ->
 			{ok, Func, Args, ReqArgsParsed} = ChosenTransport:parse_request( Handler, Req ),
-			case {ok, catch erlang:apply( Handler, Func, Args )} of
+			case catch {ok, erlang:apply( Handler, Func, Args )} of
 				{ok, RetValue} ->
 					case catch ChosenTransport:render_response( Handler, RetValue, ReqArgsParsed ) of
 						{ok, ReqResponded} -> {ok, ReqResponded};
@@ -52,7 +52,9 @@ process_request( Handler, Req ) ->
 				Error ->
 					case catch ChosenTransport:render_error( Error, ReqArgsParsed ) of
 						{ok, ReqResponded} -> {ok, ReqResponded};
-						_ErrorWhileRenderingError -> error_500_failed_to_fulfill_the_request( ReqArgsParsed, Error )
+						FailedToRenderError -> 
+							io:format("Failed to render error: ~p~n", [FailedToRenderError]),
+							error_500_failed_to_fulfill_the_request( ReqArgsParsed, Error )
 					end
 			end;
 		{wont_handle, ReqWontHandle} ->

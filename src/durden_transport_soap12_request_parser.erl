@@ -1,4 +1,4 @@
--module(durden_transport_soap11_request_parser).
+-module(durden_transport_soap12_request_parser).
 -export([get_request_args/3]).
 
 -include("app.hrl").

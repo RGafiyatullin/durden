@@ -1,4 +1,4 @@
--module(durden_transport_soap11_response_composer).
+-module(durden_transport_soap12_response_composer).
 -export([get_response_envelope/3]).
 
 -include("app.hrl").

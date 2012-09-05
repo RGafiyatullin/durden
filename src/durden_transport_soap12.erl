@@ -10,8 +10,8 @@
 
 -include("wsd.hrl").
 
--define(req_parser, durden_transport_soap11_request_parser).
--define(resp_composer, durden_transport_soap11_response_composer).
+-define(req_parser, durden_transport_soap12_request_parser).
+-define(resp_composer, durden_transport_soap12_response_composer).
 
 -spec can_handle( 
 	Handler :: atom(), 
@@ -42,7 +42,28 @@ can_handle( H, Req0 ) ->
 	end.
 
 render_error( Error, Req0 ) ->
-	{ok, _ReqReplied} = cowboy_http_req:reply(501, [], <<"SOAP-compatible error rendering not implemented">>, Req0).
+	Elt = ?xml:node({"Envelope", ?XML_NS_SOAPENV}, [], [
+		?xml:node({"Body", ?XML_NS_SOAPENV}, [], [
+		 	?xml:node({"Fault", ?XML_NS_SOAPENV}, [], [
+				?xml:set_omit_prefixes(?xml:node({"faultcode", ?XML_NS_SOAPENV}, [], ["soapenv:Server"]), true),
+				?xml:set_omit_prefixes(?xml:node({"faultstring", ?XML_NS_SOAPENV}, [], ["Internal server error"]), true),
+				?xml:set_omit_prefixes(?xml:node({"detail", ?XML_NS_SOAPENV}, [], [ 
+					lists:flatten( io_lib:format("~p", [ Error ]) )
+				]), true)
+		 	])
+		])
+	]),
+	EltNSsImported = lists:foldl(
+			fun({NS, P}, E) ->
+				?xml:imp_ns(NS, P, E)
+			end,
+			Elt,
+			[
+				{?XML_NS_SOAPENV, "soapenv"}
+			]
+		),
+	{ok, Req1} = cowboy_http_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, Req0),
+	{ok, _ReqReplied} = cowboy_http_req:reply(500, [], ?xml:render(EltNSsImported), Req1).
 
 
 parse_request( H, Req0 ) ->
