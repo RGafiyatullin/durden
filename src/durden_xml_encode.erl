@@ -123,7 +123,6 @@ encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{
 ) ->
 	[ _RecordNameAtom | FieldValues ] = tuple_to_list(RecordTuple),
 	RecordNS = durden_wsd_aux:resolve_ns(TargetNS, tns_records),
-	% RecordName = atom_to_list( RecordNameAtom ),
 	RecordFieldsWithDefs = lists:zip( FieldDefs, FieldValues ),
 	FieldsRenderedReverse = lists:flatten(
 		lists:foldl(
