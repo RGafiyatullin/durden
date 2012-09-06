@@ -1,3 +1,7 @@
+%% 
+%% This file is a part of Durden released under the MIT licence.
+%% See LICENCE file for more infromation
+%% 
 -module(durden_transport_soap12_request_parser).
 -export([get_request_args/3]).
 

@@ -13,8 +13,8 @@
 
 -record(s, {
 		target_ns :: xml_ns(),
-		types = ?dict_m:new() :: dict(),
-		refs = ?dict_m:new() :: dict() % [] :: [ { qname(), integer() } ]
+		types = ?dict_m:new() :: ?dict_t,
+		refs = ?dict_m:new() :: ?dict_t % [] :: [ { qname(), integer() } ]
 	}).
 
 -spec new_context(TargetNS :: xml_ns()) -> #s{}.

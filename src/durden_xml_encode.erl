@@ -1,3 +1,7 @@
+%% 
+%% This file is a part of Durden released under the MIT licence.
+%% See LICENCE file for more infromation
+%% 
 -module(durden_xml_encode).
 -export([encode/3]).
 

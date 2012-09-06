@@ -1,3 +1,7 @@
+%% 
+%% This file is a part of Durden released under the MIT licence.
+%% See LICENCE file for more infromation
+%% 
 -module(durden_transport_soap12).
 -behaviour(durden_transport).
 % -export([try_handle/2]).

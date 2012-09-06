@@ -1,3 +1,8 @@
+%% 
+%% This file is a part of Durden released under the MIT licence.
+%% See LICENCE file for more infromation
+%% 
+
 -module(durden_sup).
 -export([start_link/0]).
 -export([init/1]).
