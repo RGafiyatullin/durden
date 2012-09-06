@@ -287,13 +287,11 @@ spec_to_erlang_type(_TargetNS, _) -> { not_implemented, [] }.
 
 -spec qname(TargetNS :: xml_ns(), atom() | {record, atom()} ) -> xml_qname().
 
-qname(_TargetNS,  boolean ) -> { ?XML_NS_XSD, "boolean" };
-qname(_TargetNS,  string ) -> { ?XML_NS_XSD, "string" };
+qname(_TargetNS,  boolean ) -> { ?XML_NS_XSD, ?XS_TYPE_BOOL };
+qname(_TargetNS,  string ) -> { ?XML_NS_XSD, ?XS_TYPE_STR };
 qname(_TargetNS,  integer ) -> { ?XML_NS_XSD, ?XS_TYPE_INT };
-% qname(_TargetNS,  uuid ) -> { ?XML_NS_MS, "guid" };
-% qname(_TargetNS,  guid ) -> { ?XML_NS_MS, "guid" };
-qname(_TargetNS,  uuid ) -> { ?XML_NS_XSD, "guid" };
-qname(_TargetNS,  guid ) -> { ?XML_NS_XSD, "guid" };
+qname(_TargetNS,  uuid ) -> { ?XML_NS_XSD, ?XS_TYPE_UUID };
+qname(_TargetNS,  guid ) -> { ?XML_NS_XSD, ?XS_TYPE_UUID };
 qname(_TargetNS,  date ) -> { ?XML_NS_XSD, "date" };
 qname(_TargetNS,  time ) -> { ?XML_NS_XSD, "time" };
 qname(_TargetNS,  datetime ) -> { ?XML_NS_XSD, "datetime" };

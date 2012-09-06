@@ -21,6 +21,7 @@
 -define(XML_NS_MIME, "http://schemas.xmlsoap.org/wsdl/mime/").
 -define(XML_NS_MS_TM, "http://microsoft.com/wsdl/mime/textMatching/").
 -define(XML_NS_XSD, "http://www.w3.org/2001/XMLSchema").
+-define(XML_NS_XSI, "http://www.w3.org/2001/XMLSchema-instance").
 -define(XML_NS_MS, "http://microsoft.com/wsdl/types/").
 
 -define(XML_NS_SOAP_TRANSPORT, "http://schemas.xmlsoap.org/soap/http").

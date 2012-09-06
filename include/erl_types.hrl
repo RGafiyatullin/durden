@@ -10,6 +10,9 @@
 -include("xml.hrl").
 
 -define(XS_TYPE_INT, "int").
+-define(XS_TYPE_BOOL, "boolean").
+-define(XS_TYPE_STR, "string").
+-define(XS_TYPE_UUID, "guid").
 
 -record( et_ref, {
 		type :: atom()
@@ -17,20 +20,19 @@
 -record( et_atom, {
 		value :: atom()
 	} ).
--record( et_integer, {
-		name = integer
-			:: integer
-			 | int8
-			 | int16
-			 | int32
-			 | int64
-	} ).
--record( et_float, {
-		name = single
-			:: single
-			 | double % TODO: check how erlang works with those
-	}).
--record( et_string, {} ).
+% -record( et_integer, {
+% 		name = integer
+% 			:: integer
+% 			 | int8
+% 			 | int16
+% 			 | int32
+% 			 | int64
+% 	} ).
+% -record( et_float, {
+% 		name = single
+% 			:: single
+% 			 | double % TODO: check how erlang works with those
+% 	}).
 
 -record( et_binary, {
 		enc = hex
@@ -70,15 +72,14 @@
 	} ).
 
 -type erlang_type_def()
-	:: #et_integer{}
-	 | #et_float{}
-	 | #et_string{}
-	 | #et_binary{}
+	:: #et_binary{}
 	 | #et_union{}
 	 | #et_list{}
 	 | #et_range{}
 	 | #et_record{}
-
+	 % | #et_integer{}
+	 % | #et_float{}
+	 
 	 | #et_ref{}
 	 | #et_predefined{}
 

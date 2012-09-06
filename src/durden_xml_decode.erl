@@ -23,16 +23,16 @@ decode( '_', #et_ref{ type = {NS, NCN} }, Serialized, WSD ) ->
 
 
 
-decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "boolean"}, Serialized, _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_BOOL}, Serialized, _WSD ) ->
 	?predefs:decode_boolean(Serialized);
 
-decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "string"}, Serialized, _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_STR}, Serialized, _WSD ) ->
 	?predefs:decode_string(Serialized);
 
 decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_INT}, Serialized, _WSD ) ->
 	?predefs:decode_int(Serialized);
 
-decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = "guid"}, Serialized, _WSD ) ->
+decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_UUID}, Serialized, _WSD ) ->
 	?predefs:decode_uuid(Serialized);
 
 decode( RecordName, #et_record{ fields = Fields }, Serialized, WSD ) ->

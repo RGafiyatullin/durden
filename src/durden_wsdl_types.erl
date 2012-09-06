@@ -25,7 +25,7 @@ node_type_or_element( #et_union{
 				name_attr(TName),
 				[
 					?xml:node({"restriction", ?XML_NS_XSD},
-						[ { "base", qname("string", ?XML_NS_XSD) } ],
+						[ { "base", qname(?XS_TYPE_STR, ?XML_NS_XSD) } ],
 						[
 							?xml:node({"enumeration", ?XML_NS_XSD},
 								[ {"value", Opt} ],[])
@@ -106,32 +106,8 @@ node_type_or_element( #et_func{
 			)
 		];
 
-node_type_or_element( predefined, "guid" ) -> [];
-	% <xs:simpleType name="guid">
-	% 	<xs:restriction base="xs:string">
-	% 		<xs:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
-	% 	</xs:restriction>
-	% </xs:simpleType>
-	% Pattern = ?xml:node(
-	% 	{"pattern", ?XML_NS_XSD},
-	% 	[
-	% 		{"value", "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"}
-	% 	],
-	% 	[]
-	% ),
-	% Restriction = ?xml:node(
-	% 	{"restriction", ?XML_NS_XSD},
-	% 	[ {"base", qname("string", ?XML_NS_XSD)} ],
-	% 	[ Pattern ]
-	% ),
-	% [ _SimpleType = ?xml:node(
-	% 	{"simpleType", ?XML_NS_XSD},
-	% 	name_attr("guid"),
-	% 	[ Restriction ]
-	% ) ];
-
 node_type_or_element( predefined, TName ) 
-	when in(TName, ["string", "integer", "date", "time", "datetime", "int", "guid", "boolean"])
+	when in(TName, [?XS_TYPE_STR, ?XS_TYPE_INT, "date", "time", "datetime", ?XS_TYPE_UUID, ?XS_TYPE_BOOL])
 ->
 	[];
 

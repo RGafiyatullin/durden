@@ -171,12 +171,25 @@ render_attribute_value({ qname, {NS, NCN} }, Prefixes) ->
 
 render_attribute_value(V, _Prefixes) -> V.
 
+
+render_attribute_name({ qname, {NS, NCN} }, Prefixes) ->
+	P = ?dict_m:fetch( NS, Prefixes ),
+	Bound = case P of
+		[] -> [];
+		_ -> P ++ ":"
+	end
+	++ NCN,
+	list_to_atom(Bound);
+
+render_attribute_name(K, _Prefixes) -> list_to_atom(K).
+
+
 render_attrs( Attrs, Prefixes ) ->
 	lists:foldr(
 		fun( {K, V}, A ) ->
 			[ 
 				#xmlAttribute{ 
-					name = list_to_atom(K), 
+					name = render_attribute_name(K, Prefixes), 
 					value = render_attribute_value(V, Prefixes)
 				}
 				| A ]

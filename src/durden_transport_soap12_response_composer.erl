@@ -32,6 +32,7 @@ get_response_envelope(
 		{?XML_NS_MIME, "mime"},
 		{?XML_NS_MS_TM, "mstm"},
 		{?XML_NS_XSD, "xs"},
+		{?XML_NS_XSI, "xsi"},
 		{?XML_NS_MS, "ms"}
 	]),
 	{ UserDefinedPrefixes, _ } = ?dict_m:fold(
@@ -91,9 +92,14 @@ create_response_message(
 					),
 	RespDef = FuncDef #et_func.ret,
 	RespMessageNodeContent = ?xml_enc:encode(RetValue, RespDef, WSD),
-	?xml:node({RespMessageName, RespMessageNS}, [], [
-		?xml:node({?WSDL_FIELD_RESULT_AS_STR(FuncName), RespMessageNS}, [], RespMessageNodeContent )
-	]).
+	
+	MayBeResultNode = case RetValue of
+		undefined -> [];
+		_ ->
+			[ ?xml:node({?WSDL_FIELD_RESULT_AS_STR(FuncName), RespMessageNS}, [], RespMessageNodeContent ) ]
+	end,
+
+	?xml:node({RespMessageName, RespMessageNS}, [], MayBeResultNode).
 
 
 

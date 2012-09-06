@@ -7,18 +7,14 @@
 -include("wsdl.hrl").
 -include("erl_types.hrl").
 
+-define(predefs, durden_xml_encode_predefined).
+
 -spec encode(any(), erlang_type_def(), #wsd{}) -> [ ?xml:xml_node() ].
 
-encode(true, #et_predefined{ ns = ?XML_NS_XSD, name = "boolean"}, _WSD = #wsd{}) -> ["true"];
-encode(false, #et_predefined{ ns = ?XML_NS_XSD, name = "boolean"}, _WSD = #wsd{}) -> ["false"];
-
-encode(IntValue, #et_predefined{ ns = ?XML_NS_XSD, name = "int"}, _WSD = #wsd{}) 
-	when is_integer(IntValue) 
-	-> [integer_to_list(IntValue)];
-encode(IntValue, #et_predefined{ ns = ?XML_NS_XSD, name = "int"}, _WSD = #wsd{}) -> throw({xml_encode_error, string, IntValue});
-
-encode(StrValue, #et_predefined{ ns = ?XML_NS_XSD, name = "string"}, _WSD = #wsd{}) when is_list(StrValue) -> [StrValue];
-encode(StrValue, #et_predefined{ ns = ?XML_NS_XSD, name = "string"}, _WSD = #wsd{}) -> throw({xml_encode_error, string, StrValue});
+encode(Value, #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_BOOL}, _WSD = #wsd{}) -> ?predefs:encode_boolean(Value);
+encode(Value, #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_INT}, _WSD = #wsd{}) -> ?predefs:encode_int(Value);
+encode(Value, #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_STR}, _WSD = #wsd{}) -> ?predefs:encode_string(Value);
+encode(Value, #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_UUID}, _WSD = #wsd{} ) -> ?predefs:encode_uuid(Value);
 
 encode(ListOfValues, #et_list{ type = Type }, WSD = #wsd{} ) when is_list(ListOfValues) ->
 	lists:foldl(
@@ -29,47 +25,9 @@ encode(ListOfValues, #et_list{ type = Type }, WSD = #wsd{} ) when is_list(ListOf
 		ListOfValues
 	);
 
-encode(
-		GuidValue, 
-		#et_predefined{ ns = ?XML_NS_XSD, name = "guid"}, 
-		_WSD = #wsd{}
-	) 
-	when is_list(GuidValue) 
-	andalso length(GuidValue) == 36 
-	->
-		[GuidValue];
-
-encode(
-		GuidValue, 
-		#et_predefined{ ns = ?XML_NS_XSD, name = "guid"}, 
-		_WSD = #wsd{}
-	)
-	->
-		throw(
-			{ xml_encode_error, guid, {GuidValue, is_list(GuidValue), catch length(GuidValue) } }
-		);
-
-
 encode(Value, #et_ref{ type = {NS, NCN} }, WSD = #wsd{}) ->
 	EncodeAs = durden_wsd:find_def(NS, NCN, WSD),
 	encode(Value, EncodeAs, WSD);
-
-encode(Value, #et_integer{}, _WSD = #wsd{}) ->
-	case catch {ok, integer_to_list(Value)} of
-		{ok, IntAsString} ->
-			[ IntAsString ];
-		_Error ->
-			throw({xml_encode_error, integer, Value})
-	end;
-
-encode(Value, #et_float{}, _WSD = #wsd{}) ->
-	% TODO: Standard may need some other representation of floats here. Will do it later.
-	case catch {ok, float_to_list(Value)} of
-		{ok, FloatAsString} ->
-			[ FloatAsString ];
-		_Error ->
-			throw({xml_encode_error, float, Value})
-	end;
 
 encode(Value, #et_atom{ value = ExpectedValue }, _WSD = #wsd{}) ->
 	case Value == ExpectedValue of
@@ -102,21 +60,17 @@ encode(Value, UnionDef = #et_union{ options = Options }, WSD = #wsd{}) ->
 			throw( {xml_encode_error, UnionDef, Value} )
 	end;
 
-encode(Value, #et_string{}, _WSD = #wsd{}) when is_list(Value) ->
-	[ Value ];
-encode(Value, #et_string{}, _WSD = #wsd{}) ->
-	throw({xml_encode_error, string, Value});
-
 encode(Value, #et_range{ lo = Lo, hi = Hi }, WSD = #wsd{}) ->
 	case {Lo =< Value, Hi >= Value} of
 		{true, true} ->
-			encode(Value, #et_integer{}, WSD);
+			encode(Value, #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_INT }, WSD);
 		{false, _} ->
 			throw({xml_encode_error, {range, Lo, Hi}, Value});
 		{_, false} ->
 			throw({xml_encode_error, {range, Lo, Hi}, Value})
 	end;
 
+encode(undefined, #et_record{}, #wsd{}) -> [];
 encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{
 		target_ns = TargetNS
 	}
