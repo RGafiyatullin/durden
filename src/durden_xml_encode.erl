@@ -74,31 +74,9 @@ encode(Value, #et_range{ lo = Lo, hi = Hi }, WSD = #wsd{}) ->
 			throw({xml_encode_error, {range, Lo, Hi}, Value})
 	end;
 
-encode(undefined, #et_record{}, #wsd{}) -> [];
-encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{
-		target_ns = TargetNS
-	}
+encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{}
 ) ->
-	[ _RecordNameAtom | FieldValues ] = tuple_to_list(RecordTuple),
-	RecordNS = durden_wsd_aux:resolve_ns(TargetNS, tns_records),
-	RecordFieldsWithDefs = lists:zip( FieldDefs, FieldValues ),
-	FieldsRenderedReverse = lists:flatten(
-		lists:foldl(
-			fun({FNameAndDef, FValue}, Acc) ->
-				{FName, FDef} = FNameAndDef,
-				FNode = ?xml:node({atom_to_list(FName), RecordNS},
-					[],
-					encode( FValue, FDef, WSD )
-				),
-				[ FNode | Acc ]
-			end,
-			[],
-			RecordFieldsWithDefs
-		)
-	),
-	FieldsRendered = lists:reverse(FieldsRenderedReverse),
-	% [ ?xml:node({RecordName, RecordNS}, [], FieldsRendered) ];
-	FieldsRendered;
+	durden_xml_encode_record:encode_record(RecordTuple, FieldDefs, WSD);
 
 encode(Value, EncodeAs, _WSD) -> 
 	io:format("error encoding ~p as ~p~n", [Value, EncodeAs]),
