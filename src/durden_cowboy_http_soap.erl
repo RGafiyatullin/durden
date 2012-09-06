@@ -47,7 +47,7 @@ process_request( Handler, Req ) ->
 				{ok, RetValue} ->
 					case catch ChosenTransport:render_response( Handler, RetValue, ReqArgsParsed ) of
 						{ok, ReqResponded} -> {ok, ReqResponded};
-						Error -> error_500_failed_to_render_positive_response( ReqArgsParsed, Error )
+						Error -> error_500_failed_to_render_positive_response( ReqArgsParsed, RetValue, Error )
 					end;
 				Error ->
 					case catch ChosenTransport:render_error( Error, ReqArgsParsed ) of
@@ -68,8 +68,13 @@ error_400_bad_wsdl_arg( Req ) ->
 error_400_bad_soap_transport( Req ) ->
 	{ok, _ReqReplied} = cowboy_http_req:reply(400, [], <<"Unknown SOAP-transport">>, Req).
 
-error_500_failed_to_render_positive_response( Req, Error ) ->
-	{ok, _ReqReplied} = cowboy_http_req:reply(500, [], [ "Failed to render the response though : ", io_lib:format("~p", [Error]) ], Req).
+error_500_failed_to_render_positive_response( Req, RetValue, Error ) ->
+	{ok, _ReqReplied} = cowboy_http_req:reply(500, [], 
+		[
+			"Failed to render the response though request has been understood: ", 
+			io_lib:format("~p", [Error]),
+			io_lib:format("~nRetValue: ~p", [RetValue])
+		], Req).
 
 error_500_failed_to_fulfill_the_request( Req, Error ) ->
 	{ok, _ReqReplied} = cowboy_http_req:reply(500, [], [ "Failed to fulfill the request due to the following error: ", io_lib:format("~p", [Error]) ], Req).

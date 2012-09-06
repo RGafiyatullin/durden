@@ -29,7 +29,7 @@ extract_soap_body( {?'SOAP:Envelope', _, SoapEnvelopeContent } ) ->
 extract_soap_message( {?'SOAP:Body', _, [ Message ]} ) -> {ok, Message}.
 
 extract_func_args(
-	Message = {MsgType, _MsgAttrs, MsgChildren},
+	_Message = {_MsgType, _MsgAttrs, MsgChildren},
 	FuncName, WSD = #wsd{ target_ns = TargetNS, schemas = Schemas }
 ) ->
 	FuncsNS = durden_wsd_aux:resolve_ns( TargetNS, tns_funcs ),
@@ -41,12 +41,7 @@ extract_func_args(
 
 match_func_args( MsgChildren, FuncArgDefs ) ->
 	{Recognized, Unrecognized} = lists:foldl(
-		fun({ArgName, ArgDef}, {Mapped, NotMapped}) ->
-			ArgNameStr = atom_to_list(ArgName),
-			[ ArgXml ] = [ AC || { AN, _, AC } <- NotMapped, AN == ArgNameStr ],
-			Rest = [ A || A = { AN, _, _ } <- NotMapped, AN /= ArgNameStr ],
-			{[ {ArgDef, ArgXml} | Mapped ], Rest }
-		end,
+		fun match_func_args_folder/2,
 		{ [], MsgChildren },
 		FuncArgDefs),
 	case Unrecognized of
@@ -56,6 +51,15 @@ match_func_args( MsgChildren, FuncArgDefs ) ->
 			{error, unrecognized_args}
 	end.
 
+match_func_args_folder( {ArgName, ArgDef}, {Mapped, NotMapped} ) ->
+	ArgNameStr = atom_to_list(ArgName),
+	case [ AC || { AN, _, AC } <- NotMapped, AN == ArgNameStr ] of
+		[ ArgXml ] ->
+			Rest = [ A || A = { AN, _, _ } <- NotMapped, AN /= ArgNameStr ],
+			{[ {ArgDef, ArgXml} | Mapped ], Rest };
+		[] ->
+			{[ {ArgDef, xml_value_omitted} ], NotMapped}
+	end.
 
 deserialize_func_args( ArgsSerialized, WSD ) ->
 	Args = [ durden_xml_decode:decode( Def, Value, WSD ) || { Def, Value } <- ArgsSerialized ],
