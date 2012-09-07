@@ -68,7 +68,6 @@ wsdl_from_wsd(
 		),
 
 	WSDL = process_types(AllTypes, SchemaPrefixes, TargetNS),
-	% io:format("WSDL: ~p~n", [WSDL]),
 	_XmlWSDL = render(WSDL, SchemaPrefixes, TargetNS, ServiceName, HandlerURL).
 
 -spec process_types( 

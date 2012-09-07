@@ -315,10 +315,11 @@ qname( TargetNS,  TypeAtom ) ->
 	Refs :: [ {xml_qname(), integer()} ] 
 ) -> ok.
 
-report_discovered_type(QName, Def, Refs) ->
-	io:format(
-		"Erlang type ~p~n"
-		"\tDef:  ~p~n"
-		"\tRefs: ~p~n",
-		[ QName, Def, Refs ]),
-	ok.
+% report_discovered_type(QName, Def, Refs) ->
+% 	io:format(
+% 		"Erlang type ~p~n"
+% 		"\tDef:  ~p~n"
+% 		"\tRefs: ~p~n",
+% 		[ QName, Def, Refs ]),
+% 	ok.
+report_discovered_type(_QName, _Def, _Refs) -> ok.

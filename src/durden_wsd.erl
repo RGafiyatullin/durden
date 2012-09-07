@@ -15,7 +15,7 @@
 -record(s, {
 	service_name :: string(),
 	target_ns :: xml_ns(),
-	schemas = [] % TODO
+	schemas = ?dict_m:new() :: ?dict_t
 	}).
 
 -spec new_context( ServiceName :: string(), TargetNS :: xml_ns() ) -> #s{}.
@@ -27,11 +27,13 @@ finalize( Ctx = #s{
 		target_ns = TargetNS,
 		schemas = Schemas
 	} ) ->
-	#wsd{
-		service_name = ServiceName,
-		target_ns = TargetNS,
-		schemas = Schemas
-	}. 
+	_WsdAliasesResolved = durden_wsd_alias_resolve:resolve(
+		#wsd{
+			service_name = ServiceName,
+			target_ns = TargetNS,
+			schemas = Schemas
+		}
+	). 
 
 -spec find_def( 
 	NS :: xml_ns(), 
@@ -82,7 +84,7 @@ gather_types(
 	TypesUsed = lists:foldl(
 		fun( {F, _}, TU ) ->
 			FQN = durden_erl_types:qname(TargetNS, {function, F}),
-			gather_types_starting_with( FQN, AllRefs, AllTypes, TU )
+			gather_types_starting_with( FQN, AllRefs, AllTypes, TU, ?dict_m:new() )
 		end,
 		?dict_m:new(),
 		SoapExports),
@@ -90,6 +92,14 @@ gather_types(
 	Context #s{
 		schemas = TypesGrouppedByNS
 	}.
+
+should_halt( QN, Dict ) ->
+	case ?dict_m:find(QN, Dict) of
+		{ok, true} -> true;
+		error -> false;
+		{ok, false} -> false
+	end.
+set_should_halt(QN, Dict) -> ?dict_m:store(QN, true, Dict).
 
 -spec group_types_by_ns( ?dict_t ) -> ?dict_t .
 group_types_by_ns( TypesUsed ) ->
@@ -105,18 +115,21 @@ group_types_by_ns( TypesUsed ) ->
 		?dict_m:new(),
 		TypesUsed).
 
--spec gather_types_starting_with( xml_qname(), ?dict_t, ?dict_t, ?dict_t ) -> ?dict_t .
-gather_types_starting_with( QN, AllRefs, AllTypes, TypesUsed ) ->
-	% io:format("Gathering deps starting with ~p~n", [QN]),
-	TU1 = store_own_type( QN, AllTypes, TypesUsed ),
-	TU2 = store_direct_refs( QN, AllRefs, AllTypes, TU1 ),
-	_TU3 = store_indirect_refs( QN, AllRefs, AllTypes, TU2 ).
+-spec gather_types_starting_with( xml_qname(), ?dict_t, ?dict_t, ?dict_t, ?dict_t ) -> ?dict_t .
+gather_types_starting_with( QN, AllRefs, AllTypes, TypesUsed, Halts ) ->
+	case should_halt(QN, Halts) of
+		false ->
+			TU1 = store_own_type( QN, AllTypes, TypesUsed ),
+			TU2 = store_direct_refs( QN, AllRefs, AllTypes, TU1 ),
+			_TU3 = store_indirect_refs( QN, AllRefs, AllTypes, TU2, set_should_halt(QN, Halts) );
+		true ->
+			TypesUsed
+	end.
 
 store_own_type( QN, AllTypes, TU ) ->
 	case ?dict_m:find( QN, TU ) of
 		{ok, _} -> TU;
 		error ->
-			% io:format("Storing ~p~n", [ QN ]),
 			case ?dict_m:find(QN, AllTypes) of
 				{ ok, TD } -> ?dict_m:store( QN, TD, TU );
 				error -> ?dict_m:store( QN, predefined, TU )
@@ -124,17 +137,14 @@ store_own_type( QN, AllTypes, TU ) ->
 	end.
 
 get_direct_refs(QN, AllRefs) ->
-	% io:format("Direct refs of ~p {~n", [QN]),
 	Ret = case ?dict_m:find(QN, AllRefs) of
 		{ok, DirectRefs} -> lists:map(
 			fun({RQN, _}) ->
-				% io:format("\t~p~n", [RQN]),
 				RQN
 			end,
 			DirectRefs);
 		error -> []
 	end,
-	% io:format("}~n"),
 	Ret.
 
 store_direct_refs( QN, AllRefs, AllTypes, TU0 ) ->
@@ -146,12 +156,11 @@ store_direct_refs( QN, AllRefs, AllTypes, TU0 ) ->
 		TU0,
 		DirectRefs).
 
-store_indirect_refs( QN, AllRefs, AllTypes, TU0 ) ->
+store_indirect_refs( QN, AllRefs, AllTypes, TU0, Halts ) ->
 	DirectRefs = get_direct_refs(QN, AllRefs),
 	lists:foldl(
 		fun( RQN, TU ) ->
-			gather_types_starting_with( RQN, AllRefs, AllTypes, TU )
+			gather_types_starting_with( RQN, AllRefs, AllTypes, TU, Halts )
 		end,
 		TU0,
 		DirectRefs).
-

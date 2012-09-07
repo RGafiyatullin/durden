@@ -51,7 +51,7 @@ decode( '_', #et_list{ type = TRef }, XmlList, WSD) when is_list(XmlList) ->
 	];
 
 decode( '_', Def, Serialized, _WSD ) ->
-	io:format( "~nDef: ~p~nSer: ~p~n~n", [Def, Serialized] ).
+	io:format( "~nERROR DESERIALIZING the following Def: ~p~nSer: ~p~n~n", [Def, Serialized] ).
 
 
 

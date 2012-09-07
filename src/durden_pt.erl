@@ -13,6 +13,7 @@
 
 -spec parse_transform( InForms :: [ pt_form() ], PTOpts :: [ term() ] ) -> OutForms :: [ term() ].
 parse_transform(Forms, _Opts) ->
+	io:format("Durden parse transformation...~n"),
 	{ok, TargetNS} = get_target_ns( Forms ),
 	{ok, ServiceName} = get_service_name( Forms ),
 	{ok, SoapExports} = get_soap_exports( Forms ),

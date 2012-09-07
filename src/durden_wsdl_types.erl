@@ -132,11 +132,12 @@ node_type_or_element(
 			])
 	];
 
-node_type_or_element( _TDef, TName ) -> 
-	% io:format("def ~p :: ~p~n", [TName, TDef]),
+node_type_or_element( TDef, TName ) -> 
 	[ ?xml:node(
 		{"unimplementedType", ?XML_NS_XSD},
-		name_attr(TName), []
+		name_attr(TName), [
+			lists:flatten(io_lib:format("~p :: ~p", [TName, TDef]))
+		]
 		) ].
 
 
@@ -147,12 +148,10 @@ qname( NCN, NS ) ->
 	{qname, {NS, NCN} }.
 
 type_node_extract_type( #et_ref{ type = Type } ) ->
-	% io:format("Extracting ~p form et_ref~n", [Type]),
 	Type;
 
 % TODO: #et_list handled inappropriately. Should create SOAP-ENC:ArrayType
 type_node_extract_type( #et_list{ type = Type } ) ->
-	% io:format("Extracting ~p form et_list~n", [Type]),
 	type_node_extract_type( Type ).
 
 

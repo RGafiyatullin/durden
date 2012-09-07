@@ -41,10 +41,10 @@ http_uri_append(URI, Appendix) ->
 resolve_ns(TargetNS, NS) ->
 	case NS of
 		tns -> http_uri_append(TargetNS, "s0");
-		% tns_records -> http_uri_append(TargetNS, "s1");
-		% tns_funcs -> http_uri_append(TargetNS, "s2");
-		tns_records -> http_uri_append(TargetNS, "s0");
-		tns_funcs -> http_uri_append(TargetNS, "s0");
+		tns_records -> http_uri_append(TargetNS, "s1");
+		tns_funcs -> http_uri_append(TargetNS, "s2");
+		% tns_records -> http_uri_append(TargetNS, "s0");
+		% tns_funcs -> http_uri_append(TargetNS, "s0");
 		_ -> NS
 	end.
 
