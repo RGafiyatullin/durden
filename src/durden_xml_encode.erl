@@ -20,6 +20,7 @@ encode(Value, #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_INT}, _WSD = #ws
 encode(Value, #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_STR}, _WSD = #wsd{}) -> ?predefs:encode_string(Value);
 encode(Value, #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_UUID}, _WSD = #wsd{} ) -> ?predefs:encode_uuid(Value);
 
+encode(undefined, #et_list{}, #wsd{}) -> [];
 encode(ListOfValues, #et_list{ type = Type }, WSD = #wsd{} ) when is_list(ListOfValues) ->
 	lists:foldl(
 		fun(EveryValue, Acc) ->

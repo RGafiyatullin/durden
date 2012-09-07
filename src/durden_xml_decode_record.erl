@@ -18,7 +18,6 @@ decode_record( RecordName, Fields, Serialized, WSD ) ->
 		fun decode_record_fields_match_folder/2,
 		{ [], Serialized },
 		Fields),
-	
 	RecordAsList = lists:reverse(
 		lists:foldr(
 			fun({Def, Xml}, FieldsDecoded) ->
@@ -37,6 +36,6 @@ decode_record_fields_match_folder( {FName, FDef}, {Mapped, NotMapped} ) ->
 			Rest = [ F || F = { FN, _, _ } <- NotMapped, FN /= FNameStr ],
 			{[ {FDef, FXml} | Mapped ], Rest };
 		[] ->
-			{[ {FDef, xml_value_omitted} ], NotMapped}
+			{[ {FDef, xml_value_omitted} | Mapped ], NotMapped}
 	end.
 

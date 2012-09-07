@@ -64,7 +64,7 @@ node_type_or_element( #et_record{ fields = Fields }, TName ) ->
 							[
 								{"name", FName},
 								{"type", {qname, type_node_extract_type(FType) } }, % TODO: This is not okay! Twice
-								{"minOccurs", 1},
+								{"minOccurs", 0}, % fields are nillable
 								{"maxOccurs", 1}
 							],
 							[]

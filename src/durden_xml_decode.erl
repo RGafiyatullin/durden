@@ -42,6 +42,8 @@ decode( '_', #et_predefined{ ns = ?XML_NS_XSD, name = ?XS_TYPE_UUID}, Serialized
 decode( RecordName, #et_record{ fields = Fields }, Serialized, WSD ) ->
 	durden_xml_decode_record:decode_record( RecordName, Fields, Serialized, WSD );
 
+decode( '_', #et_list{}, xml_value_omitted, #wsd{} ) ->
+	undefined;
 decode( '_', #et_list{ type = TRef }, XmlList, WSD) when is_list(XmlList) ->
 	[
 		decode( TRef, XmlItem, WSD )
@@ -49,7 +51,7 @@ decode( '_', #et_list{ type = TRef }, XmlList, WSD) when is_list(XmlList) ->
 	];
 
 decode( '_', Def, Serialized, _WSD ) ->
-	io:format( "Def: ~p~nSer: ~p~n~n", [Def, Serialized] ).
+	io:format( "~nDef: ~p~nSer: ~p~n~n", [Def, Serialized] ).
 
 
 

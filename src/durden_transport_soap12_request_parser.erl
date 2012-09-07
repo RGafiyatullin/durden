@@ -62,7 +62,7 @@ match_func_args_folder( {ArgName, ArgDef}, {Mapped, NotMapped} ) ->
 			Rest = [ A || A = { AN, _, _ } <- NotMapped, AN /= ArgNameStr ],
 			{[ {ArgDef, ArgXml} | Mapped ], Rest };
 		[] ->
-			{[ {ArgDef, xml_value_omitted} ], NotMapped}
+			{[ {ArgDef, xml_value_omitted} | Mapped ], NotMapped}
 	end.
 
 deserialize_func_args( ArgsSerialized, WSD ) ->
