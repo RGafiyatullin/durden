@@ -80,7 +80,11 @@ encode(RecordTuple, #et_record{ fields = FieldDefs }, WSD = #wsd{}
 	durden_xml_encode_record:encode_record(RecordTuple, FieldDefs, WSD);
 
 encode(Value, EncodeAs, _WSD) -> 
-	io:format("error encoding ~p as ~p~n", [Value, EncodeAs]),
+	?log_error([
+		"Encoding failure",
+		{encode_as, EncodeAs},
+		{value, Value}
+		]),
 	throw({xml_encode_error, {not_implemented, EncodeAs}, Value}).
 
 

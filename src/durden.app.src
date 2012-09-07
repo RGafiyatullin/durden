@@ -11,7 +11,8 @@
                   kernel,
                   stdlib,
                   cowboy,
-                  erlsom
+                  erlsom,
+                  durden_xml
                  ]},
   {mod, {durden_app, []} },
   {env, []}

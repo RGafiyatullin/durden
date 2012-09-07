@@ -4,7 +4,7 @@
 %% 
 -module(durden_transport_soap12).
 -behaviour(durden_transport).
-% -export([try_handle/2]).
+
 -export([
 	can_handle/2,
 	parse_request/2,

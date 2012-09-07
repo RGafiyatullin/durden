@@ -15,7 +15,7 @@ add_cowboy_handler_callbacks( Forms ) ->
 			?aux_ast:add_exported_func( F, Code )
 		end,
 		Forms, [
-			?aux_ast:func_form('init', ['_', '_Req', '_Opts'], {upgrade, protocol, durden_cowboy_http_soap}),
+			?aux_ast:func_form('init', ['_', '_Req', '_Opts'], {upgrade, protocol, durden_cowboy_handler}),
 			?aux_ast:func_form('handle', ['_Req', '_State'], ignore),
 			?aux_ast:func_form('terminate', ['_Req', '_State'], ok)
 		]).

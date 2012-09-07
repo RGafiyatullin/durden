@@ -3,14 +3,12 @@
 %% See LICENCE file for more infromation
 %% 
 
--ifndef(durden_xml_hrl).
--define(durden_xml_hrl, included).
+-ifndef(durden_include_xml_hrl).
+-define(durden_include_xml_hrl, included).
 
--type xml_ns() :: string().
--type xml_ncname() :: string().
--type xml_qname() :: { xml_ns(), xml_ncname() }.
+-include_lib("durden_xml/include/durden_xml.hrl").
 
--define(xml, durden_xml_aux).
+-define(xml, durden_xml).
 
 -define(XML_NS_WSDL, "http://schemas.xmlsoap.org/wsdl/").
 -define(XML_NS_SOAP, "http://schemas.xmlsoap.org/wsdl/soap/").
@@ -26,4 +24,6 @@
 
 -define(XML_NS_SOAP_TRANSPORT, "http://schemas.xmlsoap.org/soap/http").
 
--endif. % durden_xml_hrl
+-define(XML_NS_XHTML, "http://www.w3.org/1999/xhtml").
+
+-endif. % durden_include_xml_hrl
