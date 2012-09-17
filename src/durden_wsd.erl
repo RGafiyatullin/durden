@@ -3,6 +3,14 @@
 %% See LICENCE file for more infromation
 %% 
 
+%%%
+%%% This module is used to construct a WSD (WebService definition).
+%%% Usage:
+%%% - start new context (new_context/2)
+%%% - add the soap-calls' info (gather_types/3)
+%%% - wrap up all the references (finalize/1)
+%%% 
+
 -module(durden_wsd).
 -export([new_context/2, gather_types/3, finalize/1]).
 -export([find_def/3]).
@@ -18,10 +26,28 @@
 	schemas = ?dict_m:new() :: ?dict_t
 	}).
 
--spec new_context( ServiceName :: string(), TargetNS :: xml_ns() ) -> #s{}.
+-spec new_context( 
+	ServiceName :: string(), 
+	TargetNS :: xml_ns() 
+) -> 
+	#s{}.
+
 new_context( ServiceName, TargetNS ) -> #s{ service_name = ServiceName, target_ns = TargetNS }.
 
--spec finalize( Context :: #s{} ) -> #wsd{}.
+
+%%
+%% Sometimes there are such types definitions as the following:
+%%  -type user() :: #user{}. % type {tns, user} references {records, user}
+%% In this case user() is not a new type: it is just an alias for #user{}.
+%% Common situation when this occurs is when a record type is going to be used prior to the record declaration.
+%% This kind of forward declaration is not useful in WSD and are hard to be represented in WSDL -
+%%  hence such pure-references are squashed on this stage.
+%%
+-spec finalize(
+	Context :: #s{}
+) -> 
+	#wsd{}.
+
 finalize( Ctx = #s{
 		service_name = ServiceName,
 		target_ns = TargetNS,
@@ -64,7 +90,6 @@ find_def( NS, NCN, _WSD = #wsd{ schemas = Schemas } ) ->
 			}
 	end.
 
-
 -spec gather_types( 
 	TypeInfo :: #erl_type_info{},
 	SoapExports :: [ { atom(), integer() } ],
@@ -81,6 +106,7 @@ gather_types(
 		target_ns = TargetNS
 	}
 ) ->
+	% For each exported SOAP-call collect the types referenced.
 	TypesUsed = lists:foldl(
 		fun( {F, _}, TU ) ->
 			FQN = durden_erl_types:qname(TargetNS, {function, F}),
@@ -88,6 +114,7 @@ gather_types(
 		end,
 		?dict_m:new(),
 		SoapExports),
+	% One ns - one xsd-schema in the output
 	TypesGrouppedByNS = group_types_by_ns( TypesUsed ),
 	Context #s{
 		schemas = TypesGrouppedByNS

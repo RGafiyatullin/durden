@@ -3,6 +3,13 @@
 %% See LICENCE file for more infromation
 %% 
 
+%%%
+%%% When request is being upgraded we first pass the request to 'handlers' (durden_handler behaviour).
+%%% If none of the latter accepts the request - we are piping the request through the transports available.
+%%% Transports are offered to handle a request. If any accepts the offer it is to parse the request and report what function and with which args to be called.
+%%% After the request is fulfiled or not (e.g. an error occured) - we ask the chosen transport to render a successful or negative result.
+%%%
+
 -module(durden_cowboy_handler).
 -export([upgrade/4]).
 

@@ -3,6 +3,10 @@
 %% See LICENCE file for more infromation
 %% 
 
+%%%
+%%% Helper module to work with AST-forms concerning cowboy request handling routines
+%%%
+
 -module(durden_pt_aux_cowboy).
 -export([add_cowboy_handler_callbacks/1]).
 

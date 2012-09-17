@@ -1,6 +1,10 @@
 -module(durden_wsd_alias_resolve).
 -export([resolve/1]).
 
+%%%
+%%% This is the solution of the problem described at durden_wsd.erl#finalize/1 
+%%%
+
 -include("app.hrl").
 -include("xml.hrl").
 -include("erl_types.hrl").

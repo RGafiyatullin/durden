@@ -3,6 +3,11 @@
 %% See LICENCE file for more infromation
 %% 
 
+%%%
+%%% This module is reponsible for rendering WSD into ready-for-usage WSDL
+%%% The complete traversing WSD may be CPU and memory consumptive so this module's product is to be cached ( see durden_wsd_cache.erl )
+%%% 
+
 -module(durden_wsdl).
 -compile({parse_transform, gin}).
 -export([module_wsdl/2, wsdl_from_wsd/2]).

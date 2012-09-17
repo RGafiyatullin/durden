@@ -3,10 +3,23 @@
 %% See LICENCE file for more infromation
 %% 
 
+%%%
+%%% The helper module to work with Erlang AST-forms while parse transformation
+%%% 
+
 -module(durden_pt_aux_ast).
 -export([func_form/3, add_exported_func/2, export_func/2]).
 
--spec func_form(FuncName :: atom(), ArgNames :: [ atom() ], RetValue :: term() ) -> term().
+%%
+%% Returns an AST-form of a function with the given name and args and having the specified value.
+%%
+-spec func_form(
+	FuncName :: atom(), 
+	ArgNames :: [ atom() ], 
+	RetValue :: term() 
+) -> 
+	term().
+
 func_form(Name, Args, Value) ->
 	{
 		function, 0, Name, length(Args),
@@ -29,7 +42,15 @@ export_func( {F, A}, Forms ) ->
 		| Rest
 	].
 
--spec add_exported_func( term(), [term()] ) -> [term()].
+%%
+%% Add function to the forms collection
+%% 
+-spec add_exported_func( 
+	FuncForm :: term(), 
+	FormsIn :: [term()]
+) -> 
+	FormsOut :: [term()].
+
 add_exported_func( Func = { function, _, FuncName, FuncArity, _ }, Forms ) ->
 	[ File, Mod | Rest ] = Forms,
 	export_func( 

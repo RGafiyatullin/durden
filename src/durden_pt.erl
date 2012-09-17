@@ -3,6 +3,20 @@
 %% See LICENCE file for more infromation
 %% 
 
+%%% 
+%%% This parse transformation is responsible for gather the types-related info about the module to be a SOAP-handler.
+%%% What it does:
+%%% * find the annotations about Target-Namespace, Service-Name
+%%% * find the functions to be exported (the ones specified inside -soap_exports([FuncName/Arity]) directive)
+%%% * gather all the types participating in exported-functions' declarations
+%%% * export the SOAP-calls
+%%% * add the following callbacks:
+%%%  - '#durden.get_wsd#'/0
+%%%  - (cowboy_http_handler)init/3
+%%%  - (cowboy_http_handler)handle/2
+%%%  - (cowboy_http_handler)terminate/2
+%%%
+
 -module(durden_pt).
 -export([parse_transform/2]).
 
@@ -11,6 +25,9 @@
 -include("erl_types.hrl").
 -include("wsd.hrl").
 
+%%
+%% Parse transformation entry point
+%%
 -spec parse_transform( InForms :: [ pt_form() ], PTOpts :: [ term() ] ) -> OutForms :: [ term() ].
 parse_transform(Forms, _Opts) ->
 	io:format("Durden parse transformation...~n"),
@@ -39,10 +56,7 @@ create_wsd( ServiceName, TargetNS, SoapExports, TypeInfo = #erl_type_info{} ) ->
 -spec export_wsd_calls( Forms :: [pt_form()], WSD :: #wsd{} ) -> [pt_form()].
 export_wsd_calls(
 	Forms,
-	WSD = #wsd{
-		% service_name = ServiceName,
-		% target_ns = TargetNS
-	}
+	WSD = #wsd{}
 ) ->
 	lists:foldl(
 		fun(F, Fs) ->
@@ -54,8 +68,6 @@ export_wsd_calls(
 		Forms,
 		[
 			durden_pt_aux_ast:func_form( '#durden.get_wsd#', [], WSD )
-			% ,
-			% durden_pt_aux_ast:func_form( '#durden.get_tns#', [], TargetNS )
 		]
 	).
 
@@ -79,17 +91,6 @@ get_target_ns( Forms ) ->
 			Forms
 		),
 	{ok, TargetNS}.
-
-% get_target_ns( [] ) -> { error, eof_missing };
-% get_target_ns( [ {eof, _} ] ) -> { error, attr_missing };
-% get_target_ns( [ { attribute, _, soap_target_ns, TargetNS } | _ ] ) -> 
-% 	case http_uri:parse( TargetNS ) of
-% 		{ok, _} ->
-% 			{ok, TargetNS};
-% 		{error, HTTP_URI_Err} ->
-% 			{error, HTTP_URI_Err}
-% 	end;
-% get_target_ns( [ _ | SoFar ] ) -> get_target_ns( SoFar ).
 	
 get_service_name( Forms ) ->
 	[ { attribute, _, soap_service_name, ServiceName } ] = lists:filter(
