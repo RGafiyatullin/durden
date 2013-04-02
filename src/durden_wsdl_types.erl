@@ -107,7 +107,7 @@ node_type_or_element( #et_func{
 		];
 
 node_type_or_element( predefined, TName ) 
-	when in(TName, [?XS_TYPE_STR, ?XS_TYPE_INT, "date", "time", "datetime", ?XS_TYPE_UUID, ?XS_TYPE_BOOL])
+	when in(TName, [?XS_TYPE_STR, ?XS_TYPE_INT, "date", "time", "dateTime", ?XS_TYPE_UUID, ?XS_TYPE_BOOL])
 ->
 	[];
 
