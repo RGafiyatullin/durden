@@ -15,6 +15,6 @@
 		1..12,
 		1..31
 	}.
--type datetime() :: { date(), time() }.
+-type dateTime() :: { date(), time() }.
 
 -endif. % durden_predefined_types_hrl

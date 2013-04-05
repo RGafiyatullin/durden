@@ -294,7 +294,7 @@ qname(_TargetNS,  uuid ) -> { ?XML_NS_XSD, ?XS_TYPE_UUID };
 qname(_TargetNS,  guid ) -> { ?XML_NS_XSD, ?XS_TYPE_UUID };
 qname(_TargetNS,  date ) -> { ?XML_NS_XSD, "date" };
 qname(_TargetNS,  time ) -> { ?XML_NS_XSD, "time" };
-qname(_TargetNS,  datetime ) -> { ?XML_NS_XSD, "datetime" };
+qname(_TargetNS,  dateTime ) -> { ?XML_NS_XSD, "dateTime" };
 
 qname(TargetNS,  {function, FuncName} ) ->
 	{ durden_wsd_aux:resolve_ns( TargetNS, tns_funcs ), atom_to_list(FuncName) };
