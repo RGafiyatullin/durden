@@ -18,15 +18,15 @@
 -define(cl(Classes), {"class", Classes}).
 
 try_handle( Module, BaseUrl, Req0 ) -> 
-	{HttpMethod, ReqMethodRead} = cowboy_http_req:method(Req0),
-	{QS, ReqQSRead} = cowboy_http_req:raw_qs(ReqMethodRead),
+	{HttpMethod, ReqMethodRead} = cowboy_req:method(Req0),
+	{QS, ReqQSRead} = cowboy_req:qs(ReqMethodRead),
 	case {HttpMethod, QS} of
-		{'GET', <<>>} ->
+		{<<"GET">>, <<>>} ->
 			{ok, WSD} = durden_wsd_cache:get_wsd( Module ),
 
 			ResponseXml = render_overall_documentation( WSD ),
 			ResponseXmlWithNSs = ?xml:imp_ns(?XML_NS_XHTML, "", ResponseXml),
-			{ok, ReqReplied} = cowboy_http_req:reply(200, [], ?xml:render(ResponseXmlWithNSs), ReqQSRead),
+			{ok, ReqReplied} = cowboy_req:reply(200, [], ?xml:render(ResponseXmlWithNSs), ReqQSRead),
 			{halt, ReqReplied};
 		_ ->
 			{next, ReqQSRead}

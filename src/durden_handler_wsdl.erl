@@ -8,12 +8,12 @@
 -export([try_handle/3]).
 
 try_handle(Handler, BaseUrl, Req0) ->
-	case cowboy_http_req:qs_val(<<"wsdl">>, Req0, undefined) of
+	case cowboy_req:qs_val(<<"wsdl">>, Req0, undefined) of
 		{ undefined, ReqQSRead } ->
 			{next, ReqQSRead};
 		{ _, ReqQSRead } ->
 			{ok, XmlWSDL} = durden_wsd_cache:get_wsdl( Handler, BaseUrl ),
-			{ok, ReqContentType} = cowboy_http_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, ReqQSRead),
-			{ok, ReqReplied} = cowboy_http_req:reply(200, [], XmlWSDL, ReqContentType),
+			ReqContentType = cowboy_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, ReqQSRead),
+			{ok, ReqReplied} = cowboy_req:reply(200, [], XmlWSDL, ReqContentType),
 			{halt, ReqReplied}
 	end.

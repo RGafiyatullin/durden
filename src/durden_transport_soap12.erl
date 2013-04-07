@@ -66,8 +66,8 @@ render_error( Error, Req0 ) ->
 				{?XML_NS_SOAPENV, "soapenv"}
 			]
 		),
-	{ok, Req1} = cowboy_http_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, Req0),
-	{ok, _ReqReplied} = cowboy_http_req:reply(500, [], ?xml:render(EltNSsImported), Req1).
+	{ok, Req1} = cowboy_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, Req0),
+	{ok, _ReqReplied} = cowboy_req:reply(500, [], ?xml:render(EltNSsImported), Req1).
 
 
 parse_request( H, Req0 ) ->
@@ -80,8 +80,8 @@ render_response( H, RetValue, Req0 ) ->
 	{ok, WSD} = durden_wsd_cache:get_wsd(H),
 	{FuncName, Req1} = get_func_name( H, Req0 ),
 	{ok, XmlResponseEnvelope} = ?resp_composer:get_response_envelope( RetValue, FuncName, WSD ),
-	{ok, Req2} = cowboy_http_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, Req1),
-	{ok, Req3} = cowboy_http_req:reply( 200, [], XmlResponseEnvelope, Req2 ),
+	{ok, Req2} = cowboy_req:set_resp_header( <<"Content-Type">>, <<"text/xml; charset=utf-8">>, Req1),
+	{ok, Req3} = cowboy_req:reply( 200, [], XmlResponseEnvelope, Req2 ),
 	Req3.
 
 
@@ -105,14 +105,14 @@ get_func_name( H, Req0 ) ->
 
 
 parse_call_arguments( FuncName, WSD, Req0 ) ->
-	{ ok, ReqBody, Req1 } = cowboy_http_req:body(Req0),
+	{ ok, ReqBody, Req1 } = cowboy_req:body(Req0),
 	{ ok, ReqXml, [] } = erlsom:simple_form( iolist_to_binary(ReqBody) ),
 	{ ok, ReqArgs } = ?req_parser:get_request_args( ReqXml, FuncName, WSD ),
 	{ok, ReqArgs, Req1}.
 
 
 find_soap_action(Req0) ->
-	{AllHeaders, Req1} = cowboy_http_req:headers(Req0),
+	{AllHeaders, Req1} = cowboy_req:headers(Req0),
 	case lists:filter(fun
 		({BName, Value}) when is_binary(BName) ->
 			SName = binary_to_list(BName),
